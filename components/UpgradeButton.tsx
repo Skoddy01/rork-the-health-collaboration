@@ -7,10 +7,10 @@ import { useApp } from '@/providers/AppProvider';
 import LineHeartIcon from '@/components/LineHeartIcon';
 
 export default React.memo(function UpgradeButton() {
-  const { isPremium } = useApp();
+  const { isPremium, user } = useApp();
   const router = useRouter();
 
-  if (isPremium) return null;
+  if (isPremium || !!user) return null;
 
   return (
     <TouchableOpacity

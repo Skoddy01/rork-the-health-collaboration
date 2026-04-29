@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Dumbbell, Flame, Clock, Footprints, ChevronRight, Lock } from 'lucide-react-native';
+import { Dumbbell, Flame, Clock, Footprints, ChevronRight, Lock, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/colors';
@@ -16,22 +16,22 @@ console.log("[Index] Screen loaded");
 const PREMIUM_ICONS: Record<string, React.ReactNode> = {
   '3': <Dumbbell size={20} color={Colors.exercise} strokeWidth={1.8} />,
   '4': <Flame size={20} color="#EF4444" strokeWidth={1.8} />,
-  '5': <Clock size={20} color="#34D399" strokeWidth={1.8} />,
+  '5': <Clock size={20} color="#22C55E" strokeWidth={1.8} />,
 };
 
 const PREMIUM_ICON_BG: Record<string, string> = {
-  '3': 'rgba(251,146,60,0.12)',
+  '3': 'rgba(249,115,22,0.12)',
   '4': 'rgba(239,68,68,0.12)',
-  '5': 'rgba(52,211,153,0.12)',
+  '5': 'rgba(34,197,94,0.12)',
 };
 
 export default function ExerciseScreen() {
-  const { isPremium } = useApp();
+  const { isPremium, user } = useApp();
   const colors = useColors();
   const router = useRouter();
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-      {!isPremium && (
+      {!isPremium && !user && (
         <View style={styles.premiumBannerWrap}>
           <TouchableOpacity
             style={styles.premiumBanner}
@@ -55,15 +55,12 @@ export default function ExerciseScreen() {
 
       <View style={styles.heroCard}>
         <LinearGradient
-          colors={['rgba(251,146,60,0.12)', 'rgba(251,146,60,0.03)']}
+          colors={['rgba(249,115,22,0.12)', 'rgba(249,115,22,0.03)']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         />
         <View style={styles.heroTop}>
-          <View style={styles.heroIconWrap}>
-            <Dumbbell size={28} color={Colors.exercise} strokeWidth={1.5} />
-          </View>
           <View style={styles.heroStats}>
             <View style={styles.heroStat}>
               <Clock size={14} color={Colors.textSecondary} />
@@ -83,7 +80,10 @@ export default function ExerciseScreen() {
         <Text style={styles.heroBarLabel}>58% weekly goal</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Free Content</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Star size={14} color="#FACC15" fill="#FACC15" />
+        <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Free Content</Text>
+      </View>
       <View style={styles.contentList}>
         {exerciseContent.free.map(item => (
           <ContentCard key={item.id} item={item} accentColor={Colors.exercise} />
@@ -111,7 +111,7 @@ export default function ExerciseScreen() {
       <View style={styles.premiumHeader}>
         <Text style={styles.sectionTitle}>Premium Content</Text>
       </View>
-      {!isPremium && (
+      {!isPremium && !user && (
         <TouchableOpacity
           style={styles.unlockPremiumPill}
           onPress={() => router.push('/paywall')}
@@ -122,7 +122,7 @@ export default function ExerciseScreen() {
         </TouchableOpacity>
       )}
 
-      {!isPremium && (
+      {!isPremium && !user && (
         <LockedSection
           title="Pro Workout Library"
           message="Access 50+ guided programs & custom plans"
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     backgroundColor: Colors.surface, borderRadius: 20, padding: 20, marginBottom: 28,
-    borderWidth: 1, borderColor: 'rgba(251,146,60,0.2)', overflow: 'hidden',
+    borderWidth: 1, borderColor: 'rgba(249,115,22,0.2)', overflow: 'hidden',
   },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   heroIconWrap: { width: 52, height: 52, borderRadius: 16, backgroundColor: Colors.exerciseMuted, alignItems: 'center', justifyContent: 'center' },
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.18)',
+    borderColor: 'rgba(249,115,22,0.18)',
   },
   premiumCardLocked: {
     opacity: 0.65,

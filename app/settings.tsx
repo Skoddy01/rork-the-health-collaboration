@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable,
 import { Stack, useRouter } from 'expo-router';
 import {
   User, Bell, Shield, CircleHelp as HelpCircle, LogOut,
-  ChevronRight, Moon, Globe, Mic, Music, Check, Volume2,
+  ChevronRight, Moon, Globe, Mic, Music, Check, Volume2, FileText,
 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '@/constants/colors';
@@ -31,11 +31,6 @@ function SettingRow({ icon, label, value, onPress, danger, showPro, rightElement
     <TouchableOpacity style={styles.settingRow} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
       {icon}
       <Text style={[styles.settingLabel, danger && styles.settingLabelDanger]}>{label}</Text>
-      {showPro && (
-        <View style={styles.proBadge}>
-          <Text style={styles.proBadgeText}>PRE</Text>
-        </View>
-      )}
       {rightElement ? rightElement : (
         <>
           {value && <Text style={styles.settingValue}>{value}</Text>}
@@ -101,6 +96,7 @@ export default function SettingsScreen() {
   const colors = useColors();
 
   const [showSignOutModal, setShowSignOutModal] = useState<boolean>(false);
+  const [pinExists, setPinExists] = useState<boolean>(false);
   const [voicePref, setVoicePref] = useState<'male' | 'female'>('female');
   const [musicPrefs, setMusicPrefs] = useState<MusicPrefs>(DEFAULT_MUSIC_PREFS);
   const [showVoiceModal, setShowVoiceModal] = useState<boolean>(false);
@@ -115,15 +111,17 @@ export default function SettingsScreen() {
   useEffect(() => {
     const loadPrefs = async () => {
       try {
-        const [voiceRaw, musicRaw] = await Promise.all([
+        const [voiceRaw, musicRaw, pinRaw] = await Promise.all([
           AsyncStorage.getItem(VOICE_PREF_KEY),
           AsyncStorage.getItem(MUSIC_PREF_KEY),
+          AsyncStorage.getItem('user_pin'),
         ]);
         if (voiceRaw === 'male' || voiceRaw === 'female') setVoicePref(voiceRaw);
         if (musicRaw) {
           const parsed = JSON.parse(musicRaw) as MusicPrefs;
           setMusicPrefs(parsed);
         }
+        setPinExists(!!pinRaw);
         console.log('[Settings] Preferences loaded');
       } catch (e) {
         console.log('[Settings] Error loading prefs:', e);
@@ -394,20 +392,14 @@ export default function SettingsScreen() {
             <Text style={styles.profileName}>{user?.name ?? 'Guest'}</Text>
             <Text style={styles.profileEmail}>{user?.email ?? 'No account'}</Text>
           </View>
-          {isPremium && (
-            <View style={styles.proTag}>
-              <LineHeartIcon size={12} color="#FFFFFF" strokeWidth={2} />
-              <Text style={styles.proTagText}>PRE</Text>
-            </View>
-          )}
         </View>
 
-        {!isPremium && (
+        {!isPremium && !user && (
           <TouchableOpacity style={styles.upgradeCard} onPress={() => router.push('/paywall')} activeOpacity={0.8}>
             <LineHeartIcon size={22} color="#FFFFFF" strokeWidth={1.5} />
             <View style={styles.upgradeText}>
               <Text style={styles.upgradeTitle}>Upgrade to Premium</Text>
-              <Text style={styles.upgradeSubtitle}>Unlock all features • $29.99 lifetime</Text>
+              <Text style={styles.upgradeSubtitle}>From $5/month or $45/year</Text>
             </View>
             <ChevronRight size={18} color={Colors.premium} />
           </TouchableOpacity>
@@ -419,6 +411,38 @@ export default function SettingsScreen() {
           <SettingRow icon={<Bell size={18} color={Colors.textSecondary} />} label="Notifications" onPress={() => router.push('/notifications')} />
           <SettingRow icon={<Moon size={18} color={Colors.textSecondary} />} label="Appearance" value={theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System'} onPress={() => router.push('/appearance')} />
           <SettingRow icon={<Globe size={18} color={Colors.textSecondary} />} label="Language" value="English" onPress={() => router.push('/language')} />
+          <SettingRow
+            icon={<Shield size={18} color={Colors.textSecondary} />}
+            label={pinExists ? 'Change PIN' : 'Set Up PIN'}
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/pin-setup');
+            }}
+          />
+          {pinExists && (
+            <SettingRow
+              icon={<Shield size={18} color={Colors.error} />}
+              label="Remove PIN"
+              danger
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                Alert.alert(
+                  'Remove PIN',
+                  'Are you sure you want to remove your PIN?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Remove',
+                      style: 'destructive',
+                      onPress: () => {
+                        void AsyncStorage.removeItem('user_pin').then(() => setPinExists(false));
+                      },
+                    },
+                  ]
+                );
+              }}
+            />
+          )}
         </View>
 
         <Text style={styles.sectionLabel}>MINDFULNESS AUDIO</Text>
@@ -467,7 +491,7 @@ export default function SettingsScreen() {
               activeOpacity={0.7}
               testID="test-audio-stop-btn"
             >
-              <ActivityIndicator size="small" color="#A78BFA" />
+              <ActivityIndicator size="small" color="#8B5CF6" />
               <Text style={styles.testAudioBtnText}>Playing... Tap to Stop</Text>
             </TouchableOpacity>
           ) : (
@@ -477,7 +501,7 @@ export default function SettingsScreen() {
               activeOpacity={0.8}
               testID="test-audio-btn"
             >
-              <Volume2 size={16} color="#A78BFA" />
+              <Volume2 size={16} color="#8B5CF6" />
               <Text style={styles.testAudioBtnText}>Test Audio</Text>
               <Text style={styles.testAudioVoiceLabel}>
                 {voicePref === 'female' ? 'Rainbird' : 'Brad'}
@@ -496,6 +520,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <SettingRow icon={<HelpCircle size={18} color={Colors.textSecondary} />} label="Help Centre" onPress={() => { console.log('[Settings] Navigating to help-centre'); router.push('/help-centre'); }} />
           <SettingRow icon={<Shield size={18} color={Colors.textSecondary} />} label="Privacy Policy" onPress={() => { console.log('[Settings] Navigating to privacy-policy'); router.push('/privacy-policy'); }} />
+          <SettingRow icon={<FileText size={18} color={Colors.textSecondary} />} label="Health Disclaimer" onPress={() => { console.log('[Settings] Navigating to health-disclaimer'); router.push('/health-disclaimer'); }} />
         </View>
 
         <View style={styles.section}>
@@ -790,7 +815,7 @@ const styles = StyleSheet.create({
   testAudioBtnText: {
     fontSize: 14,
     fontWeight: '600' as const,
-    color: '#A78BFA',
+    color: '#8B5CF6',
   },
   testAudioVoiceLabel: {
     fontSize: 12,

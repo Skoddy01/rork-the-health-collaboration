@@ -1,929 +1,500 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Animated,
-  Platform,
+  SafeAreaView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Sparkles, Clock, Zap, Crown, Bookmark, BookmarkCheck, ChevronDown, ChevronUp, X, Sun, Moon, Coffee, BedDouble } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
-import { Colors } from '@/constants/colors';
-import { useApp } from '@/providers/AppProvider';
-import * as Haptics from 'expo-haptics';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-console.log("[PersonalisedStacks] Screen loaded");
+import { Stack } from 'expo-router';
+import { useColors } from '@/hooks/useColors';
+import PremiumBadge from '@/components/PremiumBadge';
 
-type TimingCategory = 'morning' | 'midday' | 'evening' | 'presleep';
-
-interface Supplement {
+type Supplement = {
   name: string;
   dose: string;
   timing: string;
-  why: string;
-  howToTake: string;
-  timingCategory: TimingCategory;
-}
-
-interface StackData {
-  supplements: Supplement[];
-}
-
-interface SavedSupplement {
-  name: string;
-  dose: string;
-  timing: string;
-  why: string;
-  howToTake: string;
-  howToTakeLines?: string[];
-  timingCategory: TimingCategory;
-  goalId: GoalId;
-}
-
-type SavedStackMap = Record<GoalId, SavedSupplement[]>;
-
-const SAVED_STACK_KEY = 'thc_saved_supplement_stack_v3';
-
-type GoalId = 'energy' | 'sleep' | 'focus' | 'immunity' | 'muscle' | 'fatloss' | 'stress' | 'longevity';
-
-interface GoalChip {
-  id: GoalId;
-  label: string;
-  emoji: string;
-}
-
-const GOALS: GoalChip[] = [
-  { id: 'energy', label: 'Energy', emoji: '\u26A1' },
-  { id: 'sleep', label: 'Sleep', emoji: '\uD83C\uDF19' },
-  { id: 'focus', label: 'Focus', emoji: '\uD83E\uDDE0' },
-  { id: 'immunity', label: 'Immunity', emoji: '\uD83D\uDEE1\uFE0F' },
-  { id: 'muscle', label: 'Muscle Builder', emoji: '\uD83D\uDCAA' },
-  { id: 'fatloss', label: 'Fat Loss', emoji: '\uD83D\uDD25' },
-  { id: 'stress', label: 'Stress', emoji: '\uD83C\uDF3F' },
-  { id: 'longevity', label: 'Longevity', emoji: '\u267E\uFE0F' },
-];
-
-const TIMING_SECTIONS: { key: TimingCategory; label: string; icon: 'sun' | 'coffee' | 'moon' | 'bed' }[] = [
-  { key: 'morning', label: 'Take Mornings', icon: 'sun' },
-  { key: 'midday', label: 'Take Midday', icon: 'coffee' },
-  { key: 'evening', label: 'Take Evenings', icon: 'moon' },
-  { key: 'presleep', label: 'Take Pre Sleep', icon: 'bed' },
-];
-
-const STACKS: Record<GoalId, StackData> = {
-  energy: {
-    supplements: [
-      { name: 'Magnesium Glycinate', dose: '400mg', timing: 'Evening', why: 'Reduces fatigue and improves sleep quality', howToTake: 'Take with food', timingCategory: 'evening' },
-      { name: 'Vitamin B12', dose: '1000mcg', timing: 'Morning', why: 'Supports cellular energy production', howToTake: 'Take with or without food', timingCategory: 'morning' },
-      { name: 'CoQ10', dose: '200mg', timing: 'Morning with food', why: 'Mitochondrial energy support', howToTake: 'Take with a meal containing fat', timingCategory: 'morning' },
-      { name: 'Iron (if deficient)', dose: '18mg', timing: 'Morning', why: 'Corrects anaemia-related fatigue', howToTake: 'Take on an empty stomach', timingCategory: 'morning' },
-    ],
-  },
-  sleep: {
-    supplements: [
-      { name: 'Magnesium Glycinate', dose: '400mg', timing: '1hr before bed', why: 'Calms nervous system, improves sleep onset', howToTake: 'Take with food', timingCategory: 'presleep' },
-      { name: 'L-Theanine', dose: '200mg', timing: '30min before bed', why: 'Promotes relaxation without sedation', howToTake: 'Take with or without food', timingCategory: 'presleep' },
-      { name: 'Melatonin', dose: '0.5\u20131mg', timing: '30min before bed', why: 'Regulates circadian rhythm', howToTake: 'Take on an empty stomach', timingCategory: 'presleep' },
-      { name: 'Ashwagandha', dose: '600mg', timing: 'Evening', why: 'Reduces cortisol for deeper sleep', howToTake: 'Take with food', timingCategory: 'evening' },
-    ],
-  },
-  focus: {
-    supplements: [
-      { name: "Lion\u2019s Mane", dose: '1000mg', timing: 'Morning', why: 'Supports nerve growth factor and cognitive function', howToTake: 'Take with or without food', timingCategory: 'morning' },
-      { name: 'L-Theanine', dose: '200mg', timing: 'Morning', why: 'Smooth focus without jitters', howToTake: 'Take with or without food', timingCategory: 'morning' },
-      { name: 'Omega-3 (DHA)', dose: '1000mg', timing: 'Morning with food', why: 'Brain cell membrane integrity', howToTake: 'Take with a meal containing fat', timingCategory: 'morning' },
-      { name: 'Bacopa Monnieri', dose: '300mg', timing: 'Morning with food', why: 'Memory and attention support', howToTake: 'Take with a meal containing fat', timingCategory: 'morning' },
-    ],
-  },
-  immunity: {
-    supplements: [
-      { name: 'Vitamin D3', dose: '2000IU', timing: 'Morning with food', why: 'Immune cell regulation', howToTake: 'Take with a meal containing fat', timingCategory: 'morning' },
-      { name: 'Zinc', dose: '15mg', timing: 'Evening', why: 'Immune response and antiviral defence', howToTake: 'Take with food', timingCategory: 'evening' },
-      { name: 'Vitamin C', dose: '500mg', timing: 'Morning', why: 'Antioxidant and immune stimulant', howToTake: 'Take with or without food', timingCategory: 'morning' },
-      { name: 'Elderberry Extract', dose: '600mg', timing: 'Morning', why: 'Antiviral and anti-inflammatory', howToTake: 'Take with or without food', timingCategory: 'morning' },
-    ],
-  },
-  muscle: {
-    supplements: [
-      { name: 'Creatine Monohydrate', dose: '5g', timing: 'Any time daily', why: 'Increases power output and lean mass', howToTake: 'Take with a full glass of water', timingCategory: 'midday' },
-      { name: 'Vitamin D3', dose: '3000IU', timing: 'Morning with food', why: 'Supports testosterone and muscle protein synthesis', howToTake: 'Take with a meal containing fat', timingCategory: 'morning' },
-      { name: 'Omega-3 (EPA/DHA)', dose: '2g', timing: 'With meals', why: 'Reduces exercise-induced inflammation and supports recovery', howToTake: 'Take with food', timingCategory: 'midday' },
-      { name: 'Magnesium Glycinate', dose: '400mg', timing: 'Evening', why: 'Muscle relaxation and recovery during sleep', howToTake: 'Take with food', timingCategory: 'evening' },
-    ],
-  },
-  fatloss: {
-    supplements: [
-      { name: 'Green Tea Extract (EGCG)', dose: '500mg', timing: 'Morning before exercise', why: 'Increases fat oxidation and metabolic rate', howToTake: 'Take on an empty stomach', timingCategory: 'morning' },
-      { name: 'L-Carnitine', dose: '2g', timing: 'Before training', why: 'Transports fatty acids into mitochondria for energy', howToTake: 'Take on an empty stomach', timingCategory: 'midday' },
-      { name: 'Chromium Picolinate', dose: '200mcg', timing: 'With meals', why: 'Improves insulin sensitivity and reduces cravings', howToTake: 'Take with food', timingCategory: 'midday' },
-      { name: 'Omega-3 (EPA/DHA)', dose: '2g', timing: 'With meals', why: 'Supports fat metabolism and reduces inflammation', howToTake: 'Take with food', timingCategory: 'midday' },
-    ],
-  },
-  stress: {
-    supplements: [
-      { name: 'Ashwagandha (KSM-66)', dose: '600mg', timing: 'Morning', why: 'Clinically shown to reduce cortisol by up to 30%', howToTake: 'Take with food', timingCategory: 'morning' },
-      { name: 'L-Theanine', dose: '200mg', timing: 'Morning & afternoon', why: 'Promotes calm focus without drowsiness', howToTake: 'Take with or without food', timingCategory: 'midday' },
-      { name: 'Magnesium Glycinate', dose: '400mg', timing: 'Evening', why: 'Calms the nervous system and reduces tension', howToTake: 'Take with food', timingCategory: 'evening' },
-      { name: 'Rhodiola Rosea', dose: '400mg', timing: 'Morning', why: 'Increases stress resilience and prevents burnout', howToTake: 'Take on an empty stomach', timingCategory: 'morning' },
-    ],
-  },
-  longevity: {
-    supplements: [
-      { name: 'Omega-3 (EPA/DHA)', dose: '2g', timing: 'With meals', why: 'Reduces systemic inflammation driving age-related disease', howToTake: 'Take with food', timingCategory: 'midday' },
-      { name: 'Vitamin D3 + K2', dose: 'D3: 2000IU / K2: 100mcg', timing: 'Morning with food', why: 'Bone and cardiovascular protection', howToTake: 'Take with a meal containing fat', timingCategory: 'morning' },
-      { name: 'CoQ10 (Ubiquinol)', dose: '200mg', timing: 'Morning with food', why: 'Mitochondrial antioxidant that declines with age', howToTake: 'Take with a meal containing fat', timingCategory: 'morning' },
-      { name: 'Curcumin (with piperine)', dose: '500mg', timing: 'With meals', why: 'Potent anti-inflammatory supporting joint and brain health', howToTake: 'Take with a meal containing fat', timingCategory: 'midday' },
-    ],
-  },
+  reason: string;
 };
 
-const ACCENT = '#2563EB';
+type GoalStacks = {
+  [key: string]: Supplement[];
+};
 
-const DEFAULT_ENERGY_SUPPLEMENTS: SavedSupplement[] = [
-  {
-    name: 'Iron',
-    dose: '18mg',
-    timing: 'Morning',
-    why: 'Corrects anaemia-related fatigue',
-    howToTake: 'Take on an empty stomach',
-    howToTakeLines: [
-      'Take on an empty stomach',
-      'Take with 250ml water',
-      'Avoid taking with dairy or calcium',
-    ],
-    timingCategory: 'morning',
-    goalId: 'energy',
-  },
-  {
-    name: 'Vitamin B12',
-    dose: '1000mcg',
-    timing: 'Morning',
-    why: 'Supports cellular energy production',
-    howToTake: 'Take with or without food',
-    howToTakeLines: [
-      'Take with or without food',
-      'Take with 250ml water',
-    ],
-    timingCategory: 'morning',
-    goalId: 'energy',
-  },
-  {
-    name: 'Magnesium Glycinate',
-    dose: '400mg',
-    timing: 'Evening',
-    why: 'Reduces fatigue and improves sleep quality',
-    howToTake: 'Take with or without food',
-    howToTakeLines: [
-      'Take with or without food',
-      'Take with 250ml water',
-      'Best taken in the evening',
-    ],
-    timingCategory: 'evening',
-    goalId: 'energy',
-  },
-  {
-    name: 'CoQ10',
-    dose: '200mg',
-    timing: 'Morning with food',
-    why: 'Mitochondrial energy support',
-    howToTake: 'Take with a meal containing fat',
-    howToTakeLines: [
-      'Take with a meal containing fat',
-      'Take with 250ml water',
-    ],
-    timingCategory: 'morning',
-    goalId: 'energy',
-  },
+const GOALS = [
+  'Energy',
+  'Sleep',
+  'Focus',
+  'Immunity',
+  'Muscle Building',
+  'Fat Loss',
+  'Stress',
+  'Longevity',
 ];
 
-function getOrderedHowToTakeLines(supp: SavedSupplement): string[] {
-  if (supp.howToTakeLines && supp.howToTakeLines.length > 0) {
-    return supp.howToTakeLines;
-  }
-  return [supp.howToTake];
+const COMING_SOON_GOALS = ['Muscle Building', 'Fat Loss', 'Stress', 'Longevity'];
+
+const STACKS: GoalStacks = {
+  Energy: [
+    {
+      name: 'B-Complex',
+      dose: '1 capsule',
+      timing: 'With breakfast',
+      reason: 'Cofactors for cellular energy production.',
+    },
+    {
+      name: 'CoQ10',
+      dose: '100mg',
+      timing: 'With breakfast',
+      reason: 'Mitochondrial function and ATP production.',
+    },
+    {
+      name: 'Rhodiola Rosea',
+      dose: '300mg',
+      timing: 'Morning',
+      reason: 'Adaptogen that reduces fatigue and improves mental energy.',
+    },
+    {
+      name: 'Magnesium Glycinate',
+      dose: '300mg',
+      timing: 'Evening',
+      reason: 'Reduces fatigue-causing muscle tension and improves sleep quality.',
+    },
+  ],
+  Sleep: [
+    {
+      name: 'Magnesium Glycinate',
+      dose: '400mg',
+      timing: '1 hour before bed',
+      reason: 'Most bioavailable form, calms nervous system.',
+    },
+    {
+      name: 'L-Theanine',
+      dose: '200mg',
+      timing: '1 hour before bed',
+      reason: 'Promotes alpha brain waves without sedation.',
+    },
+    {
+      name: 'Melatonin',
+      dose: '0.5–1mg',
+      timing: '30 minutes before bed',
+      reason: 'Use minimum effective dose, avoid dependency.',
+    },
+    {
+      name: 'Ashwagandha',
+      dose: '300mg',
+      timing: 'With dinner',
+      reason: 'Lowers cortisol, signals safety to nervous system.',
+    },
+  ],
+  Focus: [
+    {
+      name: "Lion’s Mane Mushroom",
+      dose: '500–1000mg',
+      timing: 'Morning',
+      reason: 'Stimulates NGF, improves memory and focus.',
+    },
+    {
+      name: 'Bacopa Monnieri',
+      dose: '300mg',
+      timing: 'Morning with food',
+      reason: 'Improves memory formation and reduces anxiety.',
+    },
+    {
+      name: 'L-Tyrosine',
+      dose: '500mg',
+      timing: 'Before demanding cognitive work',
+      reason: 'Precursor to dopamine and noradrenaline.',
+    },
+    {
+      name: 'Omega-3 EPA+DHA',
+      dose: '2–3g/day',
+      timing: 'With meals',
+      reason: 'Essential for synaptic plasticity and cognitive function.',
+    },
+  ],
+  Immunity: [
+    {
+      name: 'Vitamin D3',
+      dose: '2000–4000 IU',
+      timing: 'With breakfast',
+      reason: 'Most critical immune-regulating vitamin.',
+    },
+    {
+      name: 'Vitamin K2 MK-7',
+      dose: '100mcg',
+      timing: 'With Vitamin D',
+      reason: 'Ensures calcium goes to bones not arteries.',
+    },
+    {
+      name: 'Zinc Picolinate',
+      dose: '15–25mg',
+      timing: 'With food',
+      reason: 'Essential for immune cell function and antiviral defence.',
+    },
+    {
+      name: 'Vitamin C',
+      dose: '1000mg',
+      timing: 'Split dose morning and evening',
+      reason: 'Antioxidant protection and immune stimulation.',
+    },
+    {
+      name: 'Quercetin',
+      dose: '500mg',
+      timing: 'With meals',
+      reason: 'Acts as zinc ionophore, helps zinc enter cells.',
+    },
+  ],
+};
+
+function SupplementCard({ supplement }: { supplement: Supplement }) {
+  const colors = useColors();
+  return (
+    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <View style={styles.cardHeader}>
+        <Text style={[styles.supplementName, { color: colors.text }]}>{supplement.name}</Text>
+        <View style={[styles.doseBadge, { backgroundColor: colors.primaryLight }]}>
+          <Text style={[styles.doseText, { color: colors.primary }]}>{supplement.dose}</Text>
+        </View>
+      </View>
+      <View style={styles.cardRow}>
+        <View style={[styles.iconDot, { backgroundColor: colors.primary }]} />
+        <View style={styles.cardDetail}>
+          <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Timing</Text>
+          <Text style={[styles.detailValue, { color: colors.text }]}>{supplement.timing}</Text>
+        </View>
+      </View>
+      <View style={[styles.reasonBox, { backgroundColor: colors.backgroundSecondary }]}>
+        <Text style={[styles.reasonLabel, { color: colors.textSecondary }]}>Why it’s included</Text>
+        <Text style={[styles.reasonText, { color: colors.text }]}>{supplement.reason}</Text>
+      </View>
+    </View>
+  );
 }
 
-function getTimingIcon(icon: string, size: number, color: string) {
-  switch (icon) {
-    case 'sun': return <Sun size={size} color={color} />;
-    case 'coffee': return <Coffee size={size} color={color} />;
-    case 'moon': return <Moon size={size} color={color} />;
-    case 'bed': return <BedDouble size={size} color={color} />;
-    default: return <Clock size={size} color={color} />;
-  }
+function ComingSoonCard({ goal }: { goal: string }) {
+  const colors = useColors();
+  return (
+    <View style={[styles.comingSoonCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <View style={[styles.comingSoonIcon, { backgroundColor: colors.primaryLight }]}>
+        <Text style={styles.comingSoonEmoji}>🔬</Text>
+      </View>
+      <Text style={[styles.comingSoonTitle, { color: colors.text }]}>
+        {goal} Stack
+      </Text>
+      <Text style={[styles.comingSoonSubtitle, { color: colors.textSecondary }]}>
+        We’re formulating your personalised {goal.toLowerCase()} protocol. This stack will be available soon.
+      </Text>
+      <View style={[styles.comingSoonPill, { backgroundColor: colors.primaryLight }]}>
+        <Text style={[styles.comingSoonPillText, { color: colors.primary }]}>Coming Soon</Text>
+      </View>
+    </View>
+  );
 }
 
 export default function PersonalisedStacksScreen() {
-  const { isPremium } = useApp();
-  const router = useRouter();
-  const [selectedGoal, setSelectedGoal] = useState<GoalId>('energy');
-  const [savedStacks, setSavedStacks] = useState<SavedStackMap>({} as SavedStackMap);
-  const [expandedGoals, setExpandedGoals] = useState<Record<GoalId, boolean>>({} as Record<GoalId, boolean>);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const colors = useColors();
+  const [selectedGoal, setSelectedGoal] = useState('Energy');
 
-  useEffect(() => {
-    AsyncStorage.getItem(SAVED_STACK_KEY).then((data) => {
-      if (data) {
-        try {
-          const parsed = JSON.parse(data) as SavedStackMap;
-          if (!parsed.energy || parsed.energy.length === 0) {
-            parsed.energy = DEFAULT_ENERGY_SUPPLEMENTS;
-          }
-          setSavedStacks(parsed);
-          AsyncStorage.setItem(SAVED_STACK_KEY, JSON.stringify(parsed)).catch(() => {});
-          console.log('[PersonalisedStacks] Loaded saved stacks', Object.keys(parsed));
-        } catch (e) {
-          console.log('Failed to parse saved stacks', e);
-          const initial: SavedStackMap = { energy: DEFAULT_ENERGY_SUPPLEMENTS } as SavedStackMap;
-          setSavedStacks(initial);
-          AsyncStorage.setItem(SAVED_STACK_KEY, JSON.stringify(initial)).catch(() => {});
-        }
-      } else {
-        const initial: SavedStackMap = { energy: DEFAULT_ENERGY_SUPPLEMENTS } as SavedStackMap;
-        setSavedStacks(initial);
-        AsyncStorage.setItem(SAVED_STACK_KEY, JSON.stringify(initial)).catch(() => {});
-        console.log('[PersonalisedStacks] Initialized default energy stack');
-      }
-    }).catch((e) => {
-      console.log('Failed to load saved stacks', e);
-      const initial: SavedStackMap = { energy: DEFAULT_ENERGY_SUPPLEMENTS } as SavedStackMap;
-      setSavedStacks(initial);
-    });
-  }, []);
-
-  const activeGoals = GOALS;
-
-  const handleSaveStack = useCallback(async () => {
-    if (Platform.OS !== 'web') {
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-    const currentStack = STACKS[selectedGoal];
-    const suppsToSave: SavedSupplement[] = currentStack.supplements.map(s => ({
-      name: s.name,
-      dose: s.dose,
-      timing: s.timing,
-      why: s.why,
-      howToTake: s.howToTake,
-      timingCategory: s.timingCategory,
-      goalId: selectedGoal,
-    }));
-    const updated = { ...savedStacks, [selectedGoal]: suppsToSave };
-    try {
-      await AsyncStorage.setItem(SAVED_STACK_KEY, JSON.stringify(updated));
-      setSavedStacks(updated);
-      setExpandedGoals(prev => ({ ...prev, [selectedGoal]: true }));
-      console.log('Stack saved for goal:', selectedGoal);
-    } catch (e) {
-      console.log('Failed to save stack', e);
-    }
-  }, [selectedGoal, savedStacks]);
-
-  const handleRemoveSupplement = useCallback(async (goalId: GoalId, suppName: string) => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    const goalSupps = savedStacks[goalId] ?? [];
-    const filtered = goalSupps.filter(s => s.name !== suppName);
-    const updated = { ...savedStacks };
-    if (filtered.length === 0) {
-      delete updated[goalId];
-    } else {
-      updated[goalId] = filtered;
-    }
-    try {
-      await AsyncStorage.setItem(SAVED_STACK_KEY, JSON.stringify(updated));
-      setSavedStacks(updated);
-      console.log('Removed supplement:', suppName, 'from goal:', goalId);
-    } catch (e) {
-      console.log('Failed to remove supplement', e);
-    }
-  }, [savedStacks]);
-
-  const toggleGoalExpanded = useCallback((goalId: GoalId) => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    setExpandedGoals(prev => ({ ...prev, [goalId]: !prev[goalId] }));
-  }, []);
-
-  const handleChipPress = useCallback((goalId: GoalId) => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    fadeAnim.setValue(0);
-    setSelectedGoal(goalId);
-    Animated.timing(fadeAnim, { toValue: 1, duration: 280, useNativeDriver: true }).start();
-  }, [fadeAnim]);
-
-  if (!isPremium) {
-    return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.lockedContent}>
-        <View style={styles.badgeWrap}>
-          <View style={styles.preBadge}>
-            <Crown size={12} color={Colors.premium} />
-            <Text style={styles.preBadgeText}>PRE</Text>
-          </View>
-        </View>
-
-        <LinearGradient
-          colors={[ACCENT, '#1E40AF']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.lockedHero}
-        >
-          <View style={styles.lockedIconWrap}>
-            <Sparkles size={32} color="#FFFFFF" strokeWidth={1.5} />
-          </View>
-          <Text style={styles.lockedTitle}>Personalised Stacks</Text>
-          <Text style={styles.lockedSub}>
-            Select your goal and get a targeted supplement stack tailored to your needs.
-          </Text>
-        </LinearGradient>
-
-        <TouchableOpacity
-          style={styles.unlockBtn}
-          activeOpacity={0.85}
-          onPress={() => router.push('/paywall')}
-          testID="unlock-premium-btn"
-        >
-          <View style={styles.unlockGradient}>
-            <Crown size={18} color="#000000" />
-            <Text style={styles.unlockText}>Unlock Premium</Text>
-          </View>
-        </TouchableOpacity>
-      </ScrollView>
-    );
-  }
-
-  const currentStack = STACKS[selectedGoal];
-  const currentGoal = GOALS.find(g => g.id === selectedGoal);
+  const isComingSoon = COMING_SOON_GOALS.includes(selectedGoal);
+  const stack = STACKS[selectedGoal] ?? [];
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.badgeWrap}>
-        <View style={styles.preBadge}>
-          <Crown size={12} color={Colors.premium} />
-          <Text style={styles.preBadgeText}>PRE</Text>
-        </View>
-      </View>
-
-      <Text style={styles.introText}>
-        Select your goal and get a targeted supplement stack.
-      </Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <Stack.Screen
+        options={{
+          title: 'Personalised Stacks',
+          headerShown: false,
+        }}
+      />
 
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipRow}
-        style={styles.chipScroll}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        {GOALS.map((goal) => {
-          const isSelected = goal.id === selectedGoal;
-          return (
-            <TouchableOpacity
-              key={goal.id}
-              style={[styles.chip, isSelected && styles.chipSelected]}
-              onPress={() => handleChipPress(goal.id)}
-              activeOpacity={0.7}
-              testID={`chip-${goal.id}`}
-            >
-              <Text style={styles.chipEmoji}>{goal.emoji}</Text>
-              <Text style={[styles.chipLabel, isSelected && styles.chipLabelSelected]}>
-                {goal.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
-      <Animated.View style={{ opacity: fadeAnim }}>
-        <View style={styles.stackHeader}>
-          <Text style={styles.stackEmoji}>{currentGoal?.emoji}</Text>
-          <Text style={styles.stackTitle}>{currentGoal?.label} Stack</Text>
-          <View style={styles.stackCountBadge}>
-            <Sparkles size={11} color={ACCENT} />
-            <Text style={styles.stackCountText}>{currentStack.supplements.length} supplements</Text>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              Personalised Stacks
+            </Text>
+            <PremiumBadge />
           </View>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+            Your personalised stack is based on your health profile and goals.
+          </Text>
         </View>
 
-        {currentStack.supplements.map((supp, idx) => (
-          <View key={idx} style={styles.suppCard} testID={`supp-card-${idx}`}>
-            <View style={styles.suppTopRow}>
-              <View style={styles.suppNumberWrap}>
-                <Text style={styles.suppNumber}>{idx + 1}</Text>
-              </View>
-              <Text style={styles.suppName}>{supp.name}</Text>
-            </View>
-
-            <View style={styles.suppFields}>
-              <View style={styles.suppFieldRow}>
-                <View style={[styles.fieldTag, { backgroundColor: 'rgba(37,99,235,0.1)' }]}>
-                  <Zap size={10} color={ACCENT} />
-                  <Text style={[styles.fieldTagLabel, { color: ACCENT }]}>Dose</Text>
-                </View>
-                <Text style={styles.fieldValue}>{supp.dose}</Text>
-              </View>
-
-              <View style={styles.suppFieldRow}>
-                <View style={[styles.fieldTag, { backgroundColor: 'rgba(96,165,250,0.1)' }]}>
-                  <Clock size={10} color="#60A5FA" />
-                  <Text style={[styles.fieldTagLabel, { color: '#60A5FA' }]}>Timing</Text>
-                </View>
-                <Text style={styles.fieldValue}>{supp.timing}</Text>
-              </View>
-
-              <View style={styles.whyRow}>
-                <Text style={styles.whyLabel}>Why:</Text>
-                <Text style={styles.whyText}>{supp.why}</Text>
-              </View>
-            </View>
-          </View>
-        ))}
-
-        <TouchableOpacity
-          style={styles.saveBtn}
-          activeOpacity={0.8}
-          onPress={handleSaveStack}
-          testID="save-stack-btn"
+        {/* Goal Chips */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipsContainer}
+          style={styles.chipsScrollView}
         >
-          <LinearGradient
-            colors={[ACCENT, '#1D4ED8']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.saveBtnGradient}
-          >
-            <Bookmark size={16} color="#FFFFFF" />
-            <Text style={styles.saveBtnText}>Save This Stack</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+          {GOALS.map((goal) => {
+            const isSelected = selectedGoal === goal;
+            return (
+              <TouchableOpacity
+                key={goal}
+                onPress={() => setSelectedGoal(goal)}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: isSelected ? colors.primary : colors.card,
+                    borderColor: isSelected ? colors.primary : colors.border,
+                  },
+                ]}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.chipText,
+                    { color: isSelected ? '#FFFFFF' : colors.textSecondary },
+                  ]}
+                >
+                  {goal}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
 
-        <Text style={styles.disclaimer}>
-          For informational purposes only. Consult a healthcare professional before starting any supplement.
-        </Text>
-      </Animated.View>
-
-      <View style={styles.savedSection}>
-        <View style={styles.savedSectionHeader}>
-          <BookmarkCheck size={20} color={ACCENT} />
-          <Text style={styles.savedSectionTitle}>My Saved Stack</Text>
+        {/* Stack label */}
+        <View style={styles.stackLabelRow}>
+          <Text style={[styles.stackLabel, { color: colors.text }]}>
+            {selectedGoal} Stack
+          </Text>
+          {!isComingSoon && (
+            <View style={[styles.countBadge, { backgroundColor: colors.primaryLight }]}>
+              <Text style={[styles.countText, { color: colors.primary }]}>
+                {stack.length} supplements
+              </Text>
+            </View>
+          )}
         </View>
 
-        {activeGoals.map((goal) => {
-            const isExpanded = expandedGoals[goal.id] ?? false;
-            const goalSupps = savedStacks[goal.id] ?? [];
-            const suppsByTiming = TIMING_SECTIONS.map(ts => ({
-              ...ts,
-              supps: goalSupps.filter(s => s.timingCategory === ts.key),
-            })).filter(ts => ts.supps.length > 0);
+        {/* Content */}
+        {isComingSoon ? (
+          <ComingSoonCard goal={selectedGoal} />
+        ) : (
+          <View style={styles.stackList}>
+            {stack.map((supplement, index) => (
+              <SupplementCard key={index} supplement={supplement} />
+            ))}
+          </View>
+        )}
 
-            return (
-              <View key={goal.id} style={styles.goalCategoryCard}>
-                <TouchableOpacity
-                  style={styles.goalCategoryHeader}
-                  activeOpacity={0.7}
-                  onPress={() => toggleGoalExpanded(goal.id)}
-                  testID={`toggle-goal-${goal.id}`}
-                >
-                  <View style={styles.goalCategoryLeft}>
-                    <Text style={styles.goalCategoryEmoji}>{goal.emoji}</Text>
-                    <Text style={styles.goalCategoryLabel}>{goal.label}</Text>
-                    <View style={styles.goalCountPill}>
-                      <Text style={styles.goalCountText}>{goalSupps.length}</Text>
-                    </View>
-                  </View>
-                  {isExpanded ? (
-                    <ChevronUp size={18} color={Colors.textSecondary} />
-                  ) : (
-                    <ChevronDown size={18} color={Colors.textSecondary} />
-                  )}
-                </TouchableOpacity>
-
-                {isExpanded && (
-                  <View style={styles.goalCategoryBody}>
-                    {suppsByTiming.map((section) => (
-                      <View key={section.key} style={styles.timingGroup}>
-                        <View style={styles.timingHeader}>
-                          {getTimingIcon(section.icon, 14, ACCENT)}
-                          <Text style={styles.timingLabel}>{section.label}</Text>
-                        </View>
-                        {section.supps.map((supp) => (
-                          <View key={supp.name} style={styles.savedSuppCard}>
-                            <View style={styles.savedSuppCardTop}>
-                              <View style={styles.savedSuppCardInfo}>
-                                <Text style={styles.savedSuppName}>{supp.name}</Text>
-                                <Text style={styles.savedSuppDose}>{supp.dose}</Text>
-                              </View>
-                              <TouchableOpacity
-                                style={styles.removeSuppBtn}
-                                activeOpacity={0.6}
-                                onPress={() => handleRemoveSupplement(goal.id, supp.name)}
-                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                                testID={`remove-${goal.id}-${supp.name}`}
-                              >
-                                <X size={14} color={Colors.textMuted} />
-                              </TouchableOpacity>
-                            </View>
-                            {getOrderedHowToTakeLines(supp).map((line, lineIdx) => (
-                              <Text key={lineIdx} style={styles.savedSuppHow}>{line}</Text>
-                            ))}
-                            <Text style={styles.savedSuppWhy}>{supp.why}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </View>
-            );
-        })}
-      </View>
-    </ScrollView>
+        <View style={styles.disclaimer}>
+          <Text style={[styles.disclaimerText, { color: colors.textSecondary }]}>
+            Always consult a healthcare professional before starting any supplement protocol.
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+  },
+  scrollView: {
+    flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
     paddingBottom: 40,
   },
-  lockedContent: {
+
+  // Header
+  header: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
-    alignItems: 'center' as const,
+    paddingTop: 20,
+    paddingBottom: 16,
   },
-  badgeWrap: {
-    alignItems: 'center' as const,
-    marginBottom: 16,
-    marginTop: 4,
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
   },
-  preBadge: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 5,
-    backgroundColor: Colors.premiumMuted,
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(245,197,66,0.3)',
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    letterSpacing: -0.5,
   },
-  preBadgeText: {
-    color: Colors.premium,
-    fontSize: 11,
-    fontWeight: '700' as const,
-    letterSpacing: 1,
-  },
-  introText: {
+  headerSubtitle: {
     fontSize: 15,
-    color: Colors.textSecondary,
-    textAlign: 'center' as const,
-    marginBottom: 20,
     lineHeight: 22,
   },
-  chipScroll: {
+
+  // Chips
+  chipsScrollView: {
     marginBottom: 24,
-    marginHorizontal: -20,
   },
-  chipRow: {
+  chipsContainer: {
     paddingHorizontal: 20,
     gap: 8,
+    flexDirection: 'row',
   },
   chip: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 6,
-    backgroundColor: Colors.surface,
-    borderRadius: 24,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
-  chipSelected: {
-    backgroundColor: 'rgba(37,99,235,0.15)',
-    borderColor: 'rgba(37,99,235,0.5)',
+  chipText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
-  chipEmoji: {
-    fontSize: 16,
+
+  // Stack label
+  stackLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginBottom: 16,
   },
-  chipLabel: {
-    fontSize: 13,
-    fontWeight: '600' as const,
-    color: Colors.textSecondary,
+  stackLabel: {
+    fontSize: 18,
+    fontWeight: '600',
   },
-  chipLabelSelected: {
-    color: '#93C5FD',
-  },
-  stackHeader: {
-    alignItems: 'center' as const,
-    marginBottom: 20,
-  },
-  stackEmoji: {
-    fontSize: 36,
-    marginBottom: 8,
-  },
-  stackTitle: {
-    fontSize: 22,
-    fontWeight: '800' as const,
-    color: Colors.text,
-    marginBottom: 8,
-  },
-  stackCountBadge: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 5,
-    backgroundColor: 'rgba(37,99,235,0.1)',
-    borderRadius: 12,
+  countBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-  },
-  stackCountText: {
-    fontSize: 12,
-    fontWeight: '600' as const,
-    color: ACCENT,
-  },
-  suppCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  suppTopRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 12,
-    marginBottom: 14,
-  },
-  suppNumberWrap: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(37,99,235,0.15)',
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-  },
-  suppNumber: {
-    fontSize: 13,
-    fontWeight: '700' as const,
-    color: ACCENT,
-  },
-  suppName: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: Colors.text,
-    flex: 1,
-  },
-  suppFields: {
-    gap: 10,
-    paddingLeft: 40,
-  },
-  suppFieldRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 10,
-  },
-  fieldTag: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 4,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    minWidth: 64,
-  },
-  fieldTagLabel: {
-    fontSize: 11,
-    fontWeight: '700' as const,
-  },
-  fieldValue: {
-    fontSize: 14,
-    color: Colors.text,
-    fontWeight: '500' as const,
-    flex: 1,
-  },
-  whyRow: {
-    flexDirection: 'row' as const,
-    gap: 6,
-    marginTop: 2,
-  },
-  whyLabel: {
-    fontSize: 12,
-    fontWeight: '700' as const,
-    color: Colors.textMuted,
-  },
-  whyText: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    lineHeight: 19,
-    flex: 1,
-  },
-  disclaimer: {
-    fontSize: 11,
-    color: Colors.textMuted,
-    textAlign: 'center' as const,
-    marginTop: 20,
-    lineHeight: 16,
-    paddingHorizontal: 10,
-  },
-  saveBtn: {
-    borderRadius: 14,
-    overflow: 'hidden' as const,
-    marginTop: 8,
-  },
-  saveBtnGradient: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 14,
-  },
-  saveBtnText: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: '#FFFFFF',
-  },
-  savedSection: {
-    marginTop: 32,
-  },
-  savedSectionHeader: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 10,
-    marginBottom: 16,
-  },
-  savedSectionTitle: {
-    fontSize: 20,
-    fontWeight: '800' as const,
-    color: Colors.text,
-  },
-  goalCategoryCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 10,
-    overflow: 'hidden' as const,
-  },
-  goalCategoryHeader: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'space-between' as const,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  goalCategoryLeft: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 10,
-  },
-  goalCategoryEmoji: {
-    fontSize: 20,
-  },
-  goalCategoryLabel: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: Colors.text,
-  },
-  goalCountPill: {
-    backgroundColor: 'rgba(37,99,235,0.15)',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    minWidth: 24,
-    alignItems: 'center' as const,
-  },
-  goalCountText: {
-    fontSize: 11,
-    fontWeight: '700' as const,
-    color: ACCENT,
-  },
-  goalCategoryBody: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  timingGroup: {
-    marginTop: 14,
-  },
-  timingHeader: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-    marginBottom: 10,
-  },
-  timingLabel: {
-    fontSize: 13,
-    fontWeight: '700' as const,
-    color: ACCENT,
-    letterSpacing: 0.3,
-  },
-  savedSuppCard: {
-    backgroundColor: Colors.surfaceHighlight,
     borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
   },
-  savedSuppCardTop: {
-    flexDirection: 'row' as const,
-    alignItems: 'flex-start' as const,
-    justifyContent: 'space-between' as const,
+  countText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
-  savedSuppCardInfo: {
+
+  // Stack list
+  stackList: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+
+  // Supplement card
+  card: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    gap: 12,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  supplementName: {
+    fontSize: 16,
+    fontWeight: '700',
     flex: 1,
-    marginRight: 8,
   },
-  savedSuppName: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: Colors.text,
-    marginBottom: 2,
+  doseBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
   },
-  savedSuppDose: {
+  doseText: {
     fontSize: 13,
-    fontWeight: '600' as const,
-    color: ACCENT,
-    marginBottom: 6,
+    fontWeight: '600',
   },
-  savedSuppHow: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    fontStyle: 'italic' as const,
-    marginBottom: 4,
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
   },
-  savedSuppWhy: {
-    fontSize: 12,
-    color: Colors.textMuted,
-    lineHeight: 17,
+  iconDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 5,
   },
-  removeSuppBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(239,68,68,0.1)',
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
+  cardDetail: {
+    flex: 1,
+    gap: 2,
   },
-  lockedHero: {
-    borderRadius: 20,
-    padding: 28,
-    alignItems: 'center' as const,
-    marginBottom: 24,
-    width: '100%' as const,
+  detailLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  lockedIconWrap: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    marginBottom: 16,
-  },
-  lockedTitle: {
-    fontSize: 24,
-    fontWeight: '800' as const,
-    color: '#FFFFFF',
-    textAlign: 'center' as const,
-    marginBottom: 8,
-  },
-  lockedSub: {
+  detailValue: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center' as const,
+    fontWeight: '500',
+  },
+  reasonBox: {
+    borderRadius: 10,
+    padding: 12,
+    gap: 4,
+  },
+  reasonLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  reasonText: {
+    fontSize: 14,
     lineHeight: 20,
   },
-  unlockBtn: {
-    borderRadius: 14,
-    overflow: 'hidden' as const,
-    width: '100%' as const,
+
+  // Coming soon card
+  comingSoonCard: {
+    marginHorizontal: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 32,
+    alignItems: 'center',
+    gap: 16,
   },
-  unlockGradient: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    gap: 10,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: '#FACC15',
+  comingSoonIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  unlockText: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: '#000000',
+  comingSoonEmoji: {
+    fontSize: 30,
+  },
+  comingSoonTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  comingSoonSubtitle: {
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+  comingSoonPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  comingSoonPillText: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+
+  // Disclaimer
+  disclaimer: {
+    marginTop: 28,
+    marginHorizontal: 20,
+  },
+  disclaimerText: {
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

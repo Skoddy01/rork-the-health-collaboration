@@ -35,7 +35,6 @@ import * as Haptics from 'expo-haptics';
 import * as LegacyFileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAudioPlayer, AudioPlayer, setAudioModeAsync } from 'expo-audio';
-import { generateText } from '@rork-ai/toolkit-sdk';
 import { useApp } from '@/providers/AppProvider';
 import { playBreathInSound, playBreathHoldSound, playBreathOutSound } from '@/utils/breathAudio';
 console.log("[SessionBuilder] Screen loaded");
@@ -90,14 +89,14 @@ const ELEVENLABS_VOICES = {
     name: 'Rainbird',
     subtitle: 'Soothing British Calm',
     icon: '🌸',
-    color: '#EC4899',
+    color: '#8B5CF6',
   },
   male: {
     id: 'KH1SQLVulwP6uG4O3nmT',
     name: 'Brad',
     subtitle: 'Meditation & Relaxation',
     icon: '🌿',
-    color: '#60A5FA',
+    color: '#38BDF8',
   },
 } as const;
 
@@ -328,7 +327,7 @@ function BreathingCircle({ technique, onComplete }: { technique: BreathTechnique
   }, [runCycle]);
 
   const phaseLabel = phase === 'inhale' ? 'Inhale' : phase === 'hold' ? 'Hold' : phase === 'exhale' ? 'Exhale' : phase === 'holdAfter' ? 'Hold' : '';
-  const phaseColor = phase === 'inhale' ? '#7DD3C0' : phase === 'exhale' ? '#A78BFA' : '#60A5FA';
+  const phaseColor = phase === 'inhale' ? '#7DD3C0' : phase === 'exhale' ? '#8B5CF6' : '#38BDF8';
 
   if (!started) {
     return (
@@ -372,7 +371,7 @@ function BreathingCircle({ technique, onComplete }: { technique: BreathTechnique
           { transform: [{ scale: scaleAnim }], opacity: opacityAnim },
         ]}>
           <LinearGradient
-            colors={['rgba(125,211,192,0.5)', 'rgba(96,165,250,0.3)', 'rgba(167,139,250,0.2)']}
+            colors={['rgba(125,211,192,0.5)', 'rgba(56,189,248,0.3)', 'rgba(139,92,246,0.2)']}
             style={StyleSheet.absoluteFill}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
@@ -483,7 +482,7 @@ const breathStyles = StyleSheet.create({
   doneText: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#34D399',
+    color: '#22C55E',
     marginBottom: 4,
   },
   doneSubtext: {
@@ -495,7 +494,7 @@ const breathStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#34D399',
+    backgroundColor: '#22C55E',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -839,39 +838,7 @@ export default function SessionBuilderScreen() {
       setStreakData(updatedStreak);
       await AsyncStorage.setItem(STORAGE_KEYS.STREAK, JSON.stringify(updatedStreak));
 
-      const prompt = `You are a warm, supportive mindfulness guide named Brad. The user's name is Scott.
-
-Scott's current state:
-- Mood: ${selectedMood}
-- Energy: ${selectedEnergy}
-- Emotional state: ${state}
-
-Generate a personalized guided mindfulness session script (~5-7 minutes spoken time). Keep the total text under 2500 characters.
-
-The session MUST include these 4 elements in this exact order:
-1. Breathwork (1-2 minutes)
-2. Intention & Awareness (2 minutes)
-3. Body Scan (2 minutes)
-4. Closing with Gratitude (1 minute)
-
-Requirements:
-- Create a tailored theme based on Scott's mood/energy/state combination
-- Start with a warm greeting using Scott's name
-- Suggest a comfortable posture briefly
-- Use a warm, encouraging, non-judgmental tone
-- Include [pause X sec] cues for natural timing (use 3, 5, 8, 10 seconds — keep pauses short)
-- In the Breathwork section, include one [pause 15 sec] for the main breathing practice
-- Number each section clearly
-- Adapt the language to Scott's current emotional state
-- If Scott is struggling/low, be extra gentle and compassionate
-- If Scott is good/wonderful, help amplify that positive state
-- End with an invitation to notice how they feel now
-- Keep it concise but warm — quality over quantity
-- Do NOT use emojis
-
-Format the output as clean readable text with clear section breaks. Do not use markdown headers (#), use plain text section titles.`;
-
-      const script = await generateText(prompt);
+      const script = generateFallbackScript(selectedMood!, selectedEnergy!, state);
       setSessionScript(script);
 
       const segments = parseScript(script);
@@ -1241,7 +1208,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
   const renderEnergyStep = () => (
     <View>
       {renderQuestionHeader(
-        <Zap size={28} color="#60A5FA" strokeWidth={1.5} />,
+        <Zap size={28} color="#38BDF8" strokeWidth={1.5} />,
         'How is your energy?',
         'Tune in to your body for a moment.'
       )}
@@ -1273,7 +1240,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
   const renderStateStep = () => (
     <View>
       {renderQuestionHeader(
-        <Brain size={28} color="#A78BFA" strokeWidth={1.5} />,
+        <Brain size={28} color="#8B5CF6" strokeWidth={1.5} />,
         'How would you describe your state right now?',
         'Choose the word that feels closest to where you are.'
       )}
@@ -1333,7 +1300,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
         <Text style={styles.insightTitle}>Your Mindful Journey</Text>
         <View style={styles.insightGrid}>
           <View style={styles.insightBox}>
-            <Flame size={16} color="#FB923C" />
+            <Flame size={16} color="#F97316" />
             <Text style={styles.insightValue}>{streakData.currentStreak}</Text>
             <Text style={styles.insightLabel}>Day{'\n'}Streak</Text>
           </View>
@@ -1343,7 +1310,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
             <Text style={styles.insightLabel}>Total{'\n'}Sessions</Text>
           </View>
           <View style={styles.insightBox}>
-            <TrendingUp size={16} color="#34D399" />
+            <TrendingUp size={16} color="#22C55E" />
             <Text style={styles.insightValue}>{avgMoodLift !== null ? `+${avgMoodLift}` : '—'}</Text>
             <Text style={styles.insightLabel}>Avg Mood{'\n'}Lift</Text>
           </View>
@@ -1370,7 +1337,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
     <View style={styles.voiceSelectContainer}>
       <View style={styles.voiceSelectHeader}>
         <Animated.View style={[styles.voiceSelectIconCircle, { transform: [{ scale: pulseAnim }] }]}>
-          <Volume2 size={28} color="#A78BFA" strokeWidth={1.5} />
+          <Volume2 size={28} color="#8B5CF6" strokeWidth={1.5} />
         </Animated.View>
         <Text style={styles.voiceSelectTitle}>Choose Your Voice Guide</Text>
         <Text style={styles.voiceSelectSubtitle}>
@@ -1429,7 +1396,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
         testID="voice-continue-btn"
       >
         <LinearGradient
-          colors={['#A78BFA', '#7C3AED']}
+          colors={['#8B5CF6', '#7C3AED']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -1499,8 +1466,8 @@ Format the output as clean readable text with clear section breaks. Do not use m
             <Text style={styles.playSessionMetaText}>{ELEVENLABS_VOICES[voicePref].name}</Text>
           </View>
           {audioPreGenerated && (
-            <View style={[styles.playSessionMetaTag, { borderColor: 'rgba(52,211,153,0.2)' }]}>
-              <Text style={[styles.playSessionMetaText, { color: '#34D399' }]}>Ready</Text>
+            <View style={[styles.playSessionMetaTag, { borderColor: 'rgba(34,197,94,0.2)' }]}>
+              <Text style={[styles.playSessionMetaText, { color: '#22C55E' }]}>Ready</Text>
             </View>
           )}
           {!audioPreGenerated && !preGenError && isPreGeneratingRef.current && (
@@ -1535,7 +1502,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
   const renderFeedbackStep = () => (
     <View>
       {renderQuestionHeader(
-        <Heart size={28} color="#EC4899" strokeWidth={1.5} />,
+        <Heart size={28} color="#8B5CF6" strokeWidth={1.5} />,
         'How are you feeling now, Scott?',
         'Notice any shifts, even the subtle ones. Every change matters.'
       )}
@@ -1624,12 +1591,12 @@ Format the output as clean readable text with clear section breaks. Do not use m
             <View style={styles.moodCompareBox}>
               <Text style={styles.moodCompareLabel}>After</Text>
               <Text style={styles.moodCompareEmoji}>😌</Text>
-              <Text style={[styles.moodCompareValue, { color: '#34D399' }]}>{selectedFeedback}</Text>
+              <Text style={[styles.moodCompareValue, { color: '#22C55E' }]}>{selectedFeedback}</Text>
             </View>
           </View>
           {moodLiftLabel && (
             <View style={styles.moodLiftBadge}>
-              <TrendingUp size={12} color="#34D399" />
+              <TrendingUp size={12} color="#22C55E" />
               <Text style={styles.moodLiftBadgeText}>{moodLiftLabel}</Text>
               {avgMoodLift !== null && (
                 <Text style={styles.moodLiftAvg}>Avg: +{avgMoodLift}</Text>
@@ -1645,14 +1612,14 @@ Format the output as clean readable text with clear section breaks. Do not use m
 
       {streakIncreased && (
         <Animated.View style={[styles.streakCelebration, { opacity: celebrateAnim, transform: [{ scale: Animated.add(0.8, Animated.multiply(celebrateAnim, 0.2)) }] }]}>
-          <Flame size={20} color="#FB923C" />
+          <Flame size={20} color="#F97316" />
           <Text style={styles.streakCelebrationText}>{streakData.currentStreak}-day streak! Keep going!</Text>
         </Animated.View>
       )}
 
       <View style={styles.completeStatsRow}>
         <View style={styles.completeStat}>
-          <Flame size={18} color="#FB923C" />
+          <Flame size={18} color="#F97316" />
           <Text style={styles.completeStatValue}>{streakData.currentStreak} day streak</Text>
         </View>
         <View style={styles.completeStat}>
@@ -1667,7 +1634,7 @@ Format the output as clean readable text with clear section breaks. Do not use m
         activeOpacity={0.8}
         testID="replay-session"
       >
-        <Volume2 size={16} color="#A78BFA" />
+        <Volume2 size={16} color="#8B5CF6" />
         <Text style={styles.replayBtnText}>Replay Audio Session</Text>
       </TouchableOpacity>
 
@@ -2011,8 +1978,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(245,197,66,0.3)',
   },
   optionCardSelectedBlue: {
-    backgroundColor: 'rgba(96,165,250,0.08)',
-    borderColor: 'rgba(96,165,250,0.3)',
+    backgroundColor: 'rgba(56,189,248,0.08)',
+    borderColor: 'rgba(56,189,248,0.3)',
   },
   optionEmoji: {
     fontSize: 22,
@@ -2029,7 +1996,7 @@ const styles = StyleSheet.create({
     color: '#F5C542',
   },
   optionLabelSelectedBlue: {
-    color: '#60A5FA',
+    color: '#38BDF8',
   },
   selectedIndicator: {
     width: 8,
@@ -2041,7 +2008,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#60A5FA',
+    backgroundColor: '#38BDF8',
   },
   stateGrid: {
     flexDirection: 'row',
@@ -2067,7 +2034,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.5)',
   },
   stateChipTextSelected: {
-    color: '#A78BFA',
+    color: '#8B5CF6',
     fontWeight: '600' as const,
   },
   backLink: {
@@ -2162,7 +2129,7 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
   genTagTextPurple: {
-    color: '#A78BFA',
+    color: '#8B5CF6',
   },
   insightDashboard: {
     backgroundColor: 'rgba(255,255,255,0.03)',
@@ -2489,7 +2456,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.5)',
   },
   feedbackChipTextSelected: {
-    color: '#EC4899',
+    color: '#8B5CF6',
     fontWeight: '600' as const,
   },
   skipLink: {
@@ -2696,7 +2663,7 @@ const styles = StyleSheet.create({
   volumeSliderValue: {
     fontSize: 12,
     fontWeight: '700' as const,
-    color: '#A78BFA',
+    color: '#8B5CF6',
     width: 32,
     textAlign: 'right' as const,
   },
@@ -2740,12 +2707,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,139,250,0.2)',
   },
   beforeTagPurpleText: {
-    color: '#A78BFA',
+    color: '#8B5CF6',
   },
   beforeAfterArrow: {
     fontSize: 14,
     fontWeight: '600' as const,
-    color: '#EC4899',
+    color: '#8B5CF6',
     marginTop: 4,
   },
   moodCompareCard: {
@@ -2800,7 +2767,7 @@ const styles = StyleSheet.create({
   moodLiftBadgeText: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#34D399',
+    color: '#22C55E',
   },
   moodLiftAvg: {
     fontSize: 11,
@@ -2823,7 +2790,7 @@ const styles = StyleSheet.create({
   streakCelebrationText: {
     fontSize: 14,
     fontWeight: '700' as const,
-    color: '#FB923C',
+    color: '#F97316',
   },
   replayBtn: {
     flexDirection: 'row',
@@ -2841,6 +2808,6 @@ const styles = StyleSheet.create({
   replayBtnText: {
     fontSize: 14,
     fontWeight: '600' as const,
-    color: '#A78BFA',
+    color: '#8B5CF6',
   },
 });

@@ -46,9 +46,9 @@ const SHOWN_MILESTONES_KEY = 'shownStepMilestones';
 const STEP_MILESTONES = [100000, 250000, 500000, 1000000];
 
 const CONFETTI_COLORS = [
-  '#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#A78BFA',
-  '#F472B6', '#FB923C', '#34D399', '#60A5FA', '#FBBF24',
-  '#EC4899', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6',
+  '#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#8B5CF6',
+  '#F472B6', '#F97316', '#22C55E', '#38BDF8', '#FBBF24',
+  '#7C3AED', '#10B981', '#3B82F6', '#EF4444', '#C4B5FD',
 ];
 const CONFETTI_COUNT = 60;
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -1222,7 +1222,7 @@ export default function PedometerScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Animated.View style={[styles.stepCircle, { transform: [{ scale: pulseAnim }] }]}>
           <LinearGradient
-            colors={['rgba(251,146,60,0.15)', 'rgba(251,146,60,0.04)']}
+            colors={['rgba(249,115,22,0.15)', 'rgba(249,115,22,0.04)']}
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -1277,7 +1277,7 @@ export default function PedometerScreen() {
           <View style={styles.progressBar}>
             <Animated.View style={[styles.progressFill, { width: progressWidth }]}>
               <LinearGradient
-                colors={['#FB923C', '#F97316']}
+                colors={['#F97316', '#EA6A10']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={StyleSheet.absoluteFill}
@@ -1790,7 +1790,7 @@ const styles = StyleSheet.create({
     height: 190,
     borderRadius: 95,
     borderWidth: 2,
-    borderColor: 'rgba(251,146,60,0.3)',
+    borderColor: 'rgba(249,115,22,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -1874,7 +1874,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.3)',
+    borderColor: 'rgba(249,115,22,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2154,7 +2154,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     width: '100%',
-    backgroundColor: '#2563EB',
+    backgroundColor: '#38BDF8',
     borderRadius: 12,
     paddingVertical: 16,
   },
@@ -2176,7 +2176,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.15)',
+    borderColor: 'rgba(249,115,22,0.15)',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -2219,7 +2219,7 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     textAlign: 'center' as const,
     borderWidth: 2,
-    borderColor: 'rgba(251,146,60,0.2)',
+    borderColor: 'rgba(249,115,22,0.2)',
   },
   modalInputError: {
     borderColor: '#EF4444',
@@ -2339,7 +2339,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.12)',
+    borderColor: 'rgba(249,115,22,0.12)',
     alignItems: 'center',
     gap: 4,
   },
@@ -2494,7 +2494,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.3)',
+    borderColor: 'rgba(249,115,22,0.3)',
   },
   retryBtnText: {
     fontSize: 14,
@@ -2598,7 +2598,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.08)',
+    borderColor: 'rgba(249,115,22,0.08)',
     alignItems: 'center' as const,
   },
   historyDate: {

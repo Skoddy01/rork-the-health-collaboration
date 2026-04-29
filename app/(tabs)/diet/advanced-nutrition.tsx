@@ -228,7 +228,7 @@ export default function AdvancedNutritionScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <LinearGradient
-          colors={['#16A34A', '#15803D']}
+          colors={['#22C55E', '#BBF7D0']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroCard}
@@ -739,7 +739,7 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
   },
   calculateBtn: {
-    backgroundColor: '#16A34A',
+    backgroundColor: '#22C55E',
     borderRadius: 12,
     paddingVertical: 14,
     flexDirection: 'row' as const,
@@ -845,7 +845,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%' as const,
-    backgroundColor: '#16A34A',
+    backgroundColor: '#22C55E',
     borderRadius: 5,
   },
   progressFillComplete: {
@@ -951,7 +951,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#16A34A',
+    backgroundColor: '#22C55E',
   },
   timelineLine: {
     position: 'absolute' as const,

@@ -31,8 +31,8 @@ import { useApp } from '@/providers/AppProvider';
 console.log("[IntermittentFasting] Screen loaded");
 
 
-const GREEN = '#16A34A';
-const GREEN_DARK = '#15803D';
+const GREEN = '#22C55E';
+const GREEN_DARK = '#BBF7D0';
 
 const METHODS = [
   {
@@ -86,8 +86,8 @@ const WEEKLY_PHASES = [
     week: 'Week 1',
     title: 'Build the Habit',
     body: "Fast for 12 hours. Eat between 8am and 8pm. Focus on getting used to skipping late-night snacks.",
-    color: 'rgba(59, 130, 246, 0.15)',
-    textColor: '#60A5FA',
+    color: 'rgba(56, 189, 248, 0.15)',
+    textColor: '#38BDF8',
   },
   {
     week: 'Week 2',

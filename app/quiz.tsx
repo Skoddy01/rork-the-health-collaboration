@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, ScrollView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Target, Moon, Dumbbell, Apple, Pill, User } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Target, Moon, Dumbbell, Apple, Pill, User, Brain } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useColors } from '@/hooks/useColors';
 import { quizQuestions } from '@/constants/quiz';
@@ -14,7 +14,13 @@ console.log("[Quiz] Screen loaded");
 const { width } = Dimensions.get('window');
 
 const iconMap: Record<string, React.ComponentType<{ size: number; color: string }>> = {
-  Target, Moon, Dumbbell, Apple, Pill, User,
+  Target, Moon, Dumbbell, Apple, Pill, User, Brain,
+};
+
+// Per-question accent colours — Q5=Exercise, Q6=Diet, Q7=Supplements
+const QUESTION_ACCENT: Record<number, string> = {
+  0: '#FBBF24', 1: '#FBBF24', 2: '#FBBF24', 3: '#8B5CF6',
+  4: '#F97316', 5: '#22C55E', 6: '#38BDF8',
 };
 
 export default function QuizScreen() {
@@ -31,6 +37,7 @@ export default function QuizScreen() {
   const question = quizQuestions[currentIndex];
   const progress = (currentIndex + 1) / quizQuestions.length;
   const IconComponent = iconMap[question.icon] || Target;
+  const accentColor = QUESTION_ACCENT[question.id] ?? '#7C3AED';
 
   const animateTransition = useCallback((direction: 'forward' | 'back') => {
     const startValue = direction === 'forward' ? width : -width;
@@ -109,6 +116,7 @@ export default function QuizScreen() {
           style={[
             styles.progressFill,
             {
+              backgroundColor: accentColor,
               width: progressAnim.interpolate({
                 inputRange: [0, 1],
                 outputRange: ['0%', '100%'],
@@ -120,8 +128,8 @@ export default function QuizScreen() {
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Animated.View style={[styles.questionWrap, { transform: [{ translateX: slideAnim }] }]}>
-          <View style={styles.iconWrap}>
-            <IconComponent size={32} color={Colors.primary} />
+          <View style={[styles.iconWrap, { backgroundColor: accentColor + '1A' }]}>
+            <IconComponent size={32} color={accentColor} />
           </View>
           <Text style={styles.questionText}>{question.question}</Text>
           {question.id === 0 && (
@@ -134,15 +142,25 @@ export default function QuizScreen() {
               return (
                 <TouchableOpacity
                   key={index}
-                  style={[styles.option, selected && styles.optionSelected]}
+                  style={[
+                    styles.option,
+                    { borderColor: accentColor },
+                    selected && { backgroundColor: '#FFFFFF', borderColor: accentColor },
+                  ]}
                   onPress={() => selectOption(option)}
                   activeOpacity={0.7}
                   testID={`quiz-option-${index}`}
                 >
-                  <View style={[styles.radio, selected && styles.radioSelected]}>
-                    {selected && <View style={styles.radioDot} />}
+                  <View
+                    style={[
+                      styles.radio,
+                      { borderColor: accentColor },
+                      selected && { borderColor: accentColor },
+                    ]}
+                  >
+                    {selected && <View style={[styles.radioDot, { backgroundColor: accentColor }]} />}
                   </View>
-                  <Text style={[styles.optionText, selected && styles.optionTextSelected]}>{option}</Text>
+                  <Text style={[styles.optionText, { color: accentColor }]}>{option}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -152,16 +170,21 @@ export default function QuizScreen() {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.nextButton, !isAnswered && styles.nextButtonDisabled]}
+          style={[
+            styles.nextButton,
+            isAnswered
+              ? { backgroundColor: '#FFFFFF', borderColor: accentColor }
+              : { backgroundColor: 'transparent', borderColor: accentColor },
+          ]}
           onPress={goNext}
           disabled={!isAnswered || isNavigating}
           activeOpacity={0.8}
           testID="quiz-next-btn"
         >
-          <Text style={[styles.nextButtonText, !isAnswered && styles.nextButtonTextDisabled]}>
+          <Text style={[styles.nextButtonText, { color: accentColor }, !isAnswered && styles.nextButtonTextDisabled]}>
             {isLast ? 'Continue' : 'Next'}
           </Text>
-          <ChevronRight size={20} color={isAnswered ? Colors.textInverse : Colors.textMuted} />
+          <ChevronRight size={20} color={accentColor} />
         </TouchableOpacity>
       </View>
     </View>
@@ -206,6 +229,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: Colors.primary,
     borderRadius: 2,
+    // accent colour applied via inline style in render
   },
   scrollView: {
     flex: 1,
@@ -246,37 +270,37 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderRadius: 14,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: '#7C3AED',
     gap: 12,
     minHeight: 56,
   },
   optionSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryMuted,
+    borderColor: '#7C3AED',
+    backgroundColor: '#FFFFFF',
   },
   radio: {
     width: 22,
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: Colors.textMuted,
+    borderColor: '#7C3AED',
     alignItems: 'center',
     justifyContent: 'center',
   },
   radioSelected: {
-    borderColor: Colors.primary,
+    borderColor: '#7C3AED',
   },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: Colors.primary,
+    backgroundColor: '#FFFFFF',
   },
   optionText: {
     flex: 1,
-    color: Colors.text,
+    color: '#7C3AED',
     fontSize: 14,
     fontWeight: '500' as const,
     lineHeight: 19,
@@ -290,7 +314,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   optionTextSelected: {
-    color: Colors.primary,
+    color: '#7C3AED',
     fontWeight: '600' as const,
   },
   footer: {
@@ -302,20 +326,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primary,
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingVertical: 16,
     gap: 8,
+    borderWidth: 1.5,
+    borderColor: '#7C3AED',
   },
   nextButtonDisabled: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: 'transparent',
+    borderColor: '#7C3AED',
   },
   nextButtonText: {
-    color: Colors.textInverse,
+    color: '#7C3AED',
     fontSize: 17,
     fontWeight: '700' as const,
   },
   nextButtonTextDisabled: {
-    color: Colors.textMuted,
+    opacity: 0.5,
   },
 });

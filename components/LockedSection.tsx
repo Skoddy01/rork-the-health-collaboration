@@ -19,13 +19,13 @@ export default React.memo(function LockedSection({
 
   return (
     <TouchableOpacity
-      style={[styles.container, { borderColor: accentColor + '40' }]}
+      style={[styles.container, { borderColor: 'rgba(150,150,150,0.2)' }]}
       onPress={() => router.push('/paywall')}
       activeOpacity={0.7}
       testID="locked-section"
     >
-      <View style={[styles.iconWrap, { backgroundColor: accentColor + '20' }]}>
-        <Lock size={20} color={accentColor} />
+      <View style={[styles.iconWrap, { backgroundColor: 'rgba(150,150,150,0.1)' }]}>
+        <Lock size={20} color="#999999" />
       </View>
       <View style={styles.textWrap}>
         <Text style={styles.title}>{title}</Text>
@@ -56,9 +56,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: Colors.text,
-    fontSize: 13,
-    fontWeight: '600' as const,
+    color: '#999999',
+    fontSize: 14,
+    fontWeight: '700' as const,
     marginBottom: 2,
   },
   message: {

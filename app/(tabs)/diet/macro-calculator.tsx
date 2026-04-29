@@ -256,7 +256,7 @@ export default function MacroCalculatorScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <LinearGradient
-        colors={['#16A34A', '#15803D']}
+        colors={['#22C55E', '#BBF7D0']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.introCard}
@@ -435,7 +435,7 @@ export default function MacroCalculatorScreen() {
         testID="calculate-btn"
       >
         <LinearGradient
-          colors={['#16A34A', '#15803D']}
+          colors={['#22C55E', '#BBF7D0']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.calculateBtnGradient}
@@ -479,15 +479,15 @@ export default function MacroCalculatorScreen() {
 
           <View style={[styles.macroCard, { backgroundColor: 'rgba(96, 165, 250, 0.1)', borderColor: 'rgba(96, 165, 250, 0.25)' }]}>
             <View style={styles.macroCardHeader}>
-              <View style={[styles.macroIconWrap, { backgroundColor: 'rgba(96, 165, 250, 0.2)' }]}>
-                <Droplet size={20} color="#60A5FA" />
+              <View style={[styles.macroIconWrap, { backgroundColor: 'rgba(56, 189, 248, 0.2)' }]}>
+                <Droplet size={20} color="#38BDF8" />
               </View>
               <View style={styles.macroCardText}>
                 <Text style={styles.macroCardTitle}>Fat</Text>
                 <Text style={styles.macroCardSub}>Hormones and brain function</Text>
               </View>
             </View>
-            <Text style={[styles.macroValue, { color: '#60A5FA' }]}>{result.fat}g</Text>
+            <Text style={[styles.macroValue, { color: '#38BDF8' }]}>{result.fat}g</Text>
             <Text style={styles.macroPerDay}>per day</Text>
           </View>
 
@@ -653,7 +653,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   unitBtnActive: {
-    backgroundColor: '#16A34A',
+    backgroundColor: '#22C55E',
   },
   unitBtnText: {
     fontSize: 12,
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
-    backgroundColor: '#16A34A',
+    backgroundColor: '#22C55E',
     borderRadius: 14,
     paddingVertical: 14,
     gap: 8,

@@ -74,7 +74,7 @@ export default function VitaminBasicsScreen() {
       </View>
 
       <LinearGradient
-        colors={['#2563EB', '#1D4ED8']}
+        colors={['#38BDF8', '#BAE6FD']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.heroCard}
@@ -150,13 +150,13 @@ export default function VitaminBasicsScreen() {
 
         <View style={styles.pairCard}>
           <LinearGradient
-            colors={['rgba(37,99,235,0.1)', 'rgba(37,99,235,0.02)']}
+            colors={['rgba(56,189,248,0.1)', 'rgba(56,189,248,0.02)']}
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           />
           <View style={styles.pairHeader}>
-            <Pill size={18} color="#2563EB" />
+            <Pill size={18} color="#0284C7" />
             <Text style={styles.pairTitle}>The D3 + K2 Combination</Text>
           </View>
           <Text style={styles.pairBody}>
@@ -261,15 +261,15 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   articleBadge: {
-    backgroundColor: 'rgba(37,99,235,0.12)',
+    backgroundColor: 'rgba(56,189,248,0.12)',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(37,99,235,0.25)',
+    borderColor: 'rgba(56,189,248,0.25)',
   },
   articleBadgeText: {
-    color: '#60A5FA',
+    color: '#0284C7',
     fontSize: 12,
     fontWeight: '600' as const,
     letterSpacing: 0.3,
@@ -334,12 +334,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#38BDF8',
   },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700' as const,
-    color: '#60A5FA',
+    color: '#0284C7',
     letterSpacing: 1.2,
   },
   sectionHeading: {
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(37,99,235,0.25)',
+    borderColor: 'rgba(56,189,248,0.25)',
     overflow: 'hidden' as const,
     marginBottom: 16,
   },
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#38BDF8',
     marginTop: 7,
   },
   doseText: {

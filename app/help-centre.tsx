@@ -31,7 +31,7 @@ const FAQ_DATA: FAQSection[] = [
       },
       {
         question: 'What is the difference between free and premium?',
-        answer: 'Free users get access to core content across all four pillars. Premium ($29.99 lifetime) unlocks all advanced programs, AI-generated mindful sessions, premium tools, and more.',
+        answer: 'Free users get access to core content across all four pillars. Premium unlocks all advanced programs, AI-generated mindful sessions, premium tools, and more. Plans from $5/month or $45/year.',
       },
     ],
   },

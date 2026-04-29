@@ -160,11 +160,11 @@ const ISOCHRONIC_TONES: FrequencyCardItem[] = [
 
 const SOLFEGGIO_FREQUENCIES: FrequencyCardItem[] = [
   { id: 'sf_174', name: 'Foundation', hz: '174 Hz', benefits: 'Pain reduction, sense of security, grounding', tips: 'Listen lying down for full body relaxation.', color: '#DC2626', bgColor: 'rgba(220,38,38,0.10)', iconElement: <Shield size={22} color="#DC2626" strokeWidth={1.8} />, frequency: 174, toneType: 'solfeggio' },
-  { id: 'sf_285', name: 'Restoration', hz: '285 Hz', benefits: 'Tissue healing, cellular repair, energy field reset', tips: 'Use after physical activity or before sleep.', color: '#EA580C', bgColor: 'rgba(234,88,12,0.10)', iconElement: <Heart size={22} color="#EA580C" strokeWidth={1.8} />, frequency: 285, toneType: 'solfeggio' },
+  { id: 'sf_285', name: 'Restoration', hz: '285 Hz', benefits: 'Tissue healing, cellular repair, energy field reset', tips: 'Use after physical activity or before sleep.', color: '#F97316', bgColor: 'rgba(249,115,22,0.10)', iconElement: <Heart size={22} color="#F97316" strokeWidth={1.8} />, frequency: 285, toneType: 'solfeggio' },
   { id: 'sf_396', name: 'Liberation', hz: '396 Hz', benefits: 'Releases guilt and fear, root chakra activation', tips: 'Combine with deep breathing exercises.', color: '#D97706', bgColor: 'rgba(217,119,6,0.10)', iconElement: <Zap size={22} color="#D97706" strokeWidth={1.8} />, frequency: 396, toneType: 'solfeggio' },
   { id: 'sf_417', name: 'Transformation', hz: '417 Hz', benefits: 'Facilitates change, clears negative energy', tips: 'Good for morning routine or fresh starts.', color: '#65A30D', bgColor: 'rgba(101,163,13,0.10)', iconElement: <Wind size={22} color="#65A30D" strokeWidth={1.8} />, frequency: 417, toneType: 'solfeggio' },
   { id: 'sf_528', name: 'Miracle Tone', hz: '528 Hz', benefits: 'DNA repair, love frequency, inner peace', tips: 'The most popular solfeggio — listen daily.', color: '#16A34A', bgColor: 'rgba(22,163,74,0.10)', iconElement: <Sun size={22} color="#16A34A" strokeWidth={1.8} />, frequency: 528, toneType: 'solfeggio' },
-  { id: 'sf_639', name: 'Connection', hz: '639 Hz', benefits: 'Relationships, harmony, heart chakra', tips: 'Listen before social interactions.', color: '#0891B2', bgColor: 'rgba(8,145,178,0.10)', iconElement: <Heart size={22} color="#0891B2" strokeWidth={1.8} />, frequency: 639, toneType: 'solfeggio' },
+  { id: 'sf_639', name: 'Connection', hz: '639 Hz', benefits: 'Relationships, harmony, heart chakra', tips: 'Listen before social interactions.', color: '#22C55E', bgColor: 'rgba(34,197,94,0.10)', iconElement: <Heart size={22} color="#22C55E" strokeWidth={1.8} />, frequency: 639, toneType: 'solfeggio' },
   { id: 'sf_741', name: 'Awakening', hz: '741 Hz', benefits: 'Intuition, problem solving, self-expression', tips: 'Use during journaling or creative work.', color: '#4F46E5', bgColor: 'rgba(79,70,229,0.10)', iconElement: <Eye size={22} color="#4F46E5" strokeWidth={1.8} />, frequency: 741, toneType: 'solfeggio' },
   { id: 'sf_852', name: 'Clarity', hz: '852 Hz', benefits: 'Returning to spiritual order, third eye activation', tips: 'Best used during meditation sessions.', color: '#7C3AED', bgColor: 'rgba(124,58,237,0.10)', iconElement: <Sparkles size={22} color="#7C3AED" strokeWidth={1.8} />, frequency: 852, toneType: 'solfeggio' },
   { id: 'sf_963', name: 'Divine', hz: '963 Hz', benefits: 'Pineal gland activation, higher consciousness', tips: 'Listen in silence for transcendent effects.', color: '#C026D3', bgColor: 'rgba(192,38,211,0.10)', iconElement: <Star size={22} color="#C026D3" strokeWidth={1.8} />, frequency: 963, toneType: 'solfeggio' },
@@ -1255,9 +1255,6 @@ export default function BetterSleepScreen() {
             <View style={styles.subSectionHeader}>
               <Headphones size={16} color="#7C3AED" strokeWidth={1.8} />
               <Text style={styles.subSectionTitle}>Binaural Beats</Text>
-              <View style={styles.freeBadge}>
-                <Text style={styles.freeBadgeText}>FREE</Text>
-              </View>
             </View>
 
             {BINAURAL_BEATS.map(card => renderFrequencyCard(card, false))}
@@ -1272,10 +1269,6 @@ export default function BetterSleepScreen() {
             <View style={styles.subSectionHeader}>
               <Zap size={16} color="#6366F1" strokeWidth={1.8} />
               <Text style={styles.subSectionTitle}>Isochronic Tones</Text>
-              <View style={styles.premiumBadge}>
-                <Lock size={10} color="#F5C542" />
-                <Text style={styles.premiumBadgeText}>PREMIUM</Text>
-              </View>
             </View>
 
             {isPremium ? (
@@ -1299,10 +1292,6 @@ export default function BetterSleepScreen() {
             <View style={styles.subSectionHeader}>
               <Sun size={16} color="#D97706" strokeWidth={1.8} />
               <Text style={styles.subSectionTitle}>Solfeggio Frequencies</Text>
-              <View style={styles.premiumBadge}>
-                <Lock size={10} color="#F5C542" />
-                <Text style={styles.premiumBadgeText}>PREMIUM</Text>
-              </View>
             </View>
 
             {isPremium ? (
@@ -1504,12 +1493,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#34D399',
+    backgroundColor: '#22C55E',
   },
   availableText: {
     fontSize: 11,
     fontWeight: '600' as const,
-    color: '#34D399',
+    color: '#22C55E',
   },
   sessionTitle: {
     fontSize: 17,
@@ -1752,7 +1741,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#34D399',
+    backgroundColor: '#22C55E',
   },
   nowPlayingText: {
     flex: 1,
@@ -1866,33 +1855,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700' as const,
     color: '#E8E0FF',
-  },
-  freeBadge: {
-    backgroundColor: 'rgba(52,211,153,0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  freeBadgeText: {
-    fontSize: 10,
-    fontWeight: '800' as const,
-    color: '#34D399',
-    letterSpacing: 0.5,
-  },
-  premiumBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(245,197,66,0.12)',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  premiumBadgeText: {
-    fontSize: 10,
-    fontWeight: '800' as const,
-    color: '#F5C542',
-    letterSpacing: 0.5,
   },
   freqCard: {
     backgroundColor: 'rgba(15,18,35,0.9)',

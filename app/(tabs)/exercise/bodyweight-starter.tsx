@@ -72,7 +72,7 @@ export default function BodyweightStarterScreen() {
 
       <View style={styles.heroCard}>
         <LinearGradient
-          colors={['rgba(251,146,60,0.14)', 'rgba(251,146,60,0.02)']}
+          colors={['rgba(249,115,22,0.14)', 'rgba(249,115,22,0.02)']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'rgba(251,146,60,0.2)',
+    borderColor: 'rgba(249,115,22,0.2)',
     overflow: 'hidden' as const,
     backgroundColor: Colors.surface,
   },

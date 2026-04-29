@@ -1,8 +1,6 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 import { useColors } from '@/hooks/useColors';
-import UpgradeButton from '@/components/UpgradeButton';
-
 export default function SupplementsLayout() {
   const colors = useColors();
 
@@ -20,7 +18,6 @@ export default function SupplementsLayout() {
         options={{
           title: 'Supplements',
           headerTitleStyle: { fontWeight: '700' as const, fontSize: 18 },
-          headerRight: () => <UpgradeButton />,
         }}
       />
       <Stack.Screen name="vitamin-basics" options={{ title: 'Vitamin Basics', headerTitleStyle: { fontWeight: '700' as const, fontSize: 18 } }} />

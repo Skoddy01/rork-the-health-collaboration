@@ -23,8 +23,8 @@ import {
 console.log("[HydrationGuide] Screen loaded");
 
 
-const GREEN = '#16A34A';
-const GREEN_DARK = '#15803D';
+const GREEN = '#22C55E';
+const GREEN_DARK = '#BBF7D0';
 const GREEN_PALE = '#F0FDF4';
 const GREEN_LIGHT = '#DCFCE7';
 const TEXT_PRIMARY = '#111827';

@@ -6,7 +6,9 @@
     "start": "bunx rork start -p msrpqqhqen2jkzjl62dzn --tunnel",
     "start-web": "bunx rork start -p msrpqqhqen2jkzjl62dzn --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p msrpqqhqen2jkzjl62dzn --web --tunnel",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -49,6 +51,7 @@
     "react-native-web": "^0.21.0",
     "react-native-worklets": "0.5.1",
     "superjson": "^2.2.6",
+    "zod": "^4.3.6",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

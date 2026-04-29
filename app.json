@@ -7,6 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "rork-app",
     "userInterfaceStyle": "automatic",
+    "statusBar": {
+      "style": "light",
+      "backgroundColor": "transparent",
+      "translucent": true
+    },
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
@@ -15,14 +20,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.msrpqqhqen2jkzjl62dzn"
+      "bundleIdentifier": "com.tmg.thehealthcode"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.msrpqqhqen2jkzjl62dzn"
+      "package": "com.tmg.thehealthcode"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

@@ -21,7 +21,7 @@ import { useApp } from '@/providers/AppProvider';
 console.log("[LongevityProtocol] Screen loaded");
 
 
-const ACCENT = '#2563EB';
+const ACCENT = '#38BDF8';
 
 const HALLMARKS = [
   { label: 'Cellular senescence', desc: 'aged cells that stop dividing but cause inflammation' },
@@ -98,7 +98,7 @@ export default function LongevityProtocolScreen() {
         </View>
 
         <LinearGradient
-          colors={[ACCENT, '#1E40AF']}
+          colors={[ACCENT, '#BAE6FD']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.lockedHero}

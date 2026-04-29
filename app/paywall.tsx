@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, ActivityIndicator, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { X, Sparkles, BookOpen, Zap, Shield, Download } from 'lucide-react-native';
+import { X, Sparkles, BookOpen, Zap, Shield, Wind, Brain } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/providers/AppProvider';
 import LineHeartIcon from '@/components/LineHeartIcon';
+import THCLogo from '@/components/THCLogo';
 console.log("[Paywall] Screen loaded");
 
 
@@ -15,8 +16,9 @@ const features = [
   { icon: Zap, label: 'Pro Workout Library & Custom Plans', color: Colors.exercise },
   { icon: BookOpen, label: 'Macro Calculator & Meal Plans', color: Colors.diet },
   { icon: Shield, label: 'AI-Powered Supplement Stacks', color: Colors.supplements },
-  { icon: Download, label: 'Downloadable Wellness Ebook', color: Colors.primary },
   { icon: null, label: 'Premium Journal & Analytics', color: Colors.premium },
+  { icon: Wind, label: '60 Second Calm & Collected Journaling', color: Colors.mind },
+  { icon: Brain, label: 'Personalised Mindful Session Builder', color: Colors.mind },
 ];
 
 const CONFETTI_COLORS = [Colors.premium, Colors.mind, Colors.exercise, Colors.diet, Colors.supplements, Colors.primary, '#FF6B6B', '#FFD93D'];
@@ -37,44 +39,29 @@ export default function PaywallScreen() {
   const confettiAnims = useRef(CONFETTI_PIECES.map(() => new Animated.Value(0))).current;
   const successScale = useRef(new Animated.Value(0)).current;
   const successOpacity = useRef(new Animated.Value(0)).current;
-  const autoDismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (purchaseState === 'success') {
-      Animated.parallel([
-        Animated.spring(successScale, { toValue: 1, tension: 50, friction: 7, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(successOpacity, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }),
-      ]).start();
+    if (purchaseState !== 'success') return;
 
-      const confettiAnimations = confettiAnims.map((anim, i) =>
-        Animated.sequence([
-          Animated.delay(CONFETTI_PIECES[i].delay),
-          Animated.timing(anim, { toValue: 1, duration: 1400, useNativeDriver: Platform.OS !== 'web' }),
-        ])
-      );
-      Animated.stagger(30, confettiAnimations).start();
+    Animated.parallel([
+      Animated.spring(successScale, { toValue: 1, tension: 50, friction: 7, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(successOpacity, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }),
+    ]).start();
 
-      autoDismissTimer.current = setTimeout(() => {
-        try {
-          router.replace('/(tabs)/home');
-        } catch {
-          console.log('Navigation failed on auto-dismiss');
-        }
-      }, 5000);
-    }
-
-    return () => {
-      if (autoDismissTimer.current) {
-        clearTimeout(autoDismissTimer.current);
-      }
-    };
+    const confettiAnimations = confettiAnims.map((anim, i) =>
+      Animated.sequence([
+        Animated.delay(CONFETTI_PIECES[i].delay),
+        Animated.timing(anim, { toValue: 1, duration: 1400, useNativeDriver: Platform.OS !== 'web' }),
+      ])
+    );
+    Animated.stagger(30, confettiAnimations).start();
   }, [purchaseState]);
 
   if (purchaseState === 'success') {
     return (
       <View style={[styles.successContainer, { backgroundColor: colors.background }]}>
         <LinearGradient
-          colors={['rgba(245,197,66,0.08)', 'transparent', 'rgba(200,232,110,0.05)']}
+          colors={['rgba(245,197,66,0.08)', 'transparent', 'rgba(124,58,237,0.05)']}
           style={StyleSheet.absoluteFill}
         />
         <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
@@ -83,17 +70,12 @@ export default function PaywallScreen() {
 
         <Animated.View style={[styles.successContent, { transform: [{ scale: successScale.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }) }] }]}>
           <View style={styles.successIconWrap}>
-            <LineHeartIcon size={48} color="#FFFFFF" strokeWidth={1.2} />
+            <THCLogo size={88} />
           </View>
           <Text style={styles.successTitle}>Welcome to Premium!</Text>
           <Text style={styles.successSubtitle}>All premium features are now unlocked. Your wellness journey just leveled up.</Text>
 
           <View style={styles.successActions}>
-            <TouchableOpacity style={styles.ebookBtn} activeOpacity={0.8}>
-              <Download size={18} color={Colors.textInverse} />
-              <Text style={styles.ebookBtnText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>Download Ebook</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.exploreBtn}
               onPress={() => router.replace('/(tabs)/home')}
@@ -165,11 +147,9 @@ export default function PaywallScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.crownWrap}>
-            <LineHeartIcon size={36} color="#FFFFFF" strokeWidth={1.2} />
-          </View>
+          <THCLogo size={80} />
           <Text style={styles.title}>Upgrade to Premium</Text>
-          <Text style={styles.subtitle}>Unlock the full Health Collaboration experience with lifetime access to all premium features.</Text>
+          <Text style={styles.subtitle}>Unlock the full Health Collaboration experience and access all premium features.</Text>
         </View>
 
         <View style={styles.featuresList}>
@@ -189,20 +169,33 @@ export default function PaywallScreen() {
           })}
         </View>
 
-        <View style={styles.priceCard}>
-          <LinearGradient
-            colors={['rgba(245,197,66,0.1)', 'rgba(245,197,66,0.02)']}
-            style={StyleSheet.absoluteFill}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          />
-          <Text style={styles.priceLabel}>LIFETIME ACCESS</Text>
-          <Text style={styles.price}>$29.99</Text>
-          <Text style={styles.priceNote}>One-time payment</Text>
-          <View style={styles.priceDivider} />
-          <Text style={styles.priceCompare}>No subscriptions</Text>
-          <Text style={styles.priceCompare}>No hidden fees</Text>
-          <Text style={styles.priceCompare}>Forever</Text>
+        <View style={styles.pricingRow}>
+          <View style={styles.priceCard}>
+            <LinearGradient
+              colors={['rgba(245,197,66,0.1)', 'rgba(245,197,66,0.02)']}
+              style={StyleSheet.absoluteFill}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            />
+            <Text style={styles.priceLabel}>MONTHLY</Text>
+            <Text style={styles.price}>$5</Text>
+            <Text style={styles.priceNote}>per month</Text>
+          </View>
+
+          <View style={[styles.priceCard, styles.priceCardFeatured]}>
+            <LinearGradient
+              colors={['rgba(56,189,248,0.15)', 'rgba(56,189,248,0.03)']}
+              style={StyleSheet.absoluteFill}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            />
+            <Text style={[styles.priceLabel, { color: '#38BDF8' }]}>ANNUAL</Text>
+            <Text style={styles.price}>$45</Text>
+            <Text style={styles.priceNote}>billed annually</Text>
+            <View style={styles.savingsBadge}>
+              <Text style={styles.savingsText}>Save 25%</Text>
+            </View>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -215,10 +208,7 @@ export default function PaywallScreen() {
           {purchaseState === 'loading' ? (
             <ActivityIndicator color={Colors.textInverse} />
           ) : (
-            <>
-              <LineHeartIcon size={20} color="#FFFFFF" strokeWidth={1.8} />
-              <Text style={styles.purchaseBtnText}>Unlock THC Premium</Text>
-            </>
+            <Text style={styles.purchaseBtnText}>Unlock Premium</Text>
           )}
         </TouchableOpacity>
 
@@ -227,7 +217,7 @@ export default function PaywallScreen() {
         )}
 
         <Text style={styles.termsText}>
-          By purchasing, you agree to our Terms of Service and Privacy Policy. Lifetime access means access for the lifetime of the product.
+          By purchasing, you agree to our Terms of Service and Privacy Policy.
         </Text>
       </ScrollView>
     </View>
@@ -268,12 +258,6 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   crownWrap: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
-    backgroundColor: Colors.premiumMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: 20,
   },
   title: {
@@ -327,51 +311,60 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     marginTop: -1,
   },
+  pricingRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 20,
+  },
   priceCard: {
+    flex: 1,
     borderRadius: 18,
-    padding: 24,
+    padding: 20,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: 'rgba(245,197,66,0.3)',
-    marginBottom: 20,
     overflow: 'hidden',
   },
+  priceCardFeatured: {
+    borderColor: 'rgba(56,189,248,0.4)',
+  },
   priceLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700' as const,
     color: Colors.premium,
     letterSpacing: 2,
-    marginBottom: 8,
+    marginBottom: 6,
   },
-
   price: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '800' as const,
     color: Colors.text,
     marginBottom: 2,
   },
   priceNote: {
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.textSecondary,
-    marginBottom: 10,
-  },
-  priceDivider: {
-    width: 40,
-    height: 1.5,
-    backgroundColor: 'rgba(245,197,66,0.3)',
-    marginBottom: 10,
-  },
-  priceCompare: {
-    fontSize: 13,
-    color: Colors.textMuted,
-    marginTop: 2,
     textAlign: 'center' as const,
+  },
+  savingsBadge: {
+    marginTop: 8,
+    backgroundColor: 'rgba(56,189,248,0.15)',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  savingsText: {
+    fontSize: 11,
+    fontWeight: '700' as const,
+    color: '#38BDF8',
   },
   purchaseBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.premium,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#7C3AED',
     borderRadius: 16,
     paddingVertical: 18,
     gap: 10,
@@ -381,7 +374,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   purchaseBtnText: {
-    color: Colors.textInverse,
+    color: '#7C3AED',
     fontSize: 17,
     fontWeight: '700' as const,
   },
@@ -404,10 +397,6 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   successIconWrap: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: Colors.premiumMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -428,22 +417,6 @@ const styles = StyleSheet.create({
   successActions: {
     width: '100%',
     gap: 12,
-  },
-  ebookBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.primary,
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  ebookBtnText: {
-    color: Colors.textInverse,
-    fontSize: 13,
-    fontWeight: '700' as const,
-    flexShrink: 1,
   },
   exploreBtn: {
     alignItems: 'center',

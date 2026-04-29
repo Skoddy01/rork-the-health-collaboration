@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, useWindowDimensions, ScrollView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowRight } from 'lucide-react-native';
+import THCLogo from '@/components/THCLogo';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '@/constants/colors';
 import { useColors } from '@/hooks/useColors';
 import { moderateScale, scale } from '@/utils/responsive';
-import LineHeartIcon from '@/components/LineHeartIcon';
 console.log("[Welcome] Screen loaded");
 
 
@@ -69,11 +70,7 @@ export default function WelcomeScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Animated.View style={[styles.logoWrap, { opacity: fadeIn, transform: [{ scale: logoScale }] }]}>
-          <View style={styles.logoOuter}>
-            <View style={styles.logoInner}>
-              <LineHeartIcon size={moderateScale(40)} color="#FFFFFF" strokeWidth={1.2} />
-            </View>
-          </View>
+          <THCLogo size={scale(100)} />
         </Animated.View>
 
         <Animated.View style={[styles.textBlock, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
@@ -104,11 +101,17 @@ export default function WelcomeScreen() {
 
           <TouchableOpacity
             style={styles.secondaryButton}
-            onPress={() => {
+            onPress={async () => {
               if (isNavigating) return;
               setIsNavigating(true);
-              console.log('[Welcome] Navigating to auth');
-              router.replace('/auth?mode=signIn');
+              const pin = await AsyncStorage.getItem('user_pin');
+              if (pin) {
+                console.log('[Welcome] PIN found, navigating to pin-entry');
+                router.replace('/pin-entry');
+              } else {
+                console.log('[Welcome] No PIN, navigating to auth');
+                router.replace('/auth?mode=signIn');
+              }
             }}
             disabled={isNavigating}
             activeOpacity={0.7}
@@ -125,15 +128,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-
   },
   decorCircle: {
     position: 'absolute',
-    backgroundColor: 'rgba(200, 232, 110, 0.04)',
+    backgroundColor: 'rgba(124, 58, 237, 0.04)',
   },
   decorCircle2Base: {
     position: 'absolute',
-    backgroundColor: 'rgba(52, 211, 153, 0.03)',
+    backgroundColor: 'rgba(34, 197, 94, 0.03)',
   },
   scrollView: {
     flex: 1,
@@ -148,37 +150,19 @@ const styles = StyleSheet.create({
   logoWrap: {
     marginBottom: scale(40),
   },
-  logoOuter: {
-    width: scale(100),
-    height: scale(100),
-    borderRadius: scale(32),
-    backgroundColor: Colors.primaryMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(200, 232, 110, 0.2)',
-  },
-  logoInner: {
-    width: scale(68),
-    height: scale(68),
-    borderRadius: scale(22),
-    backgroundColor: 'rgba(200, 232, 110, 0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   textBlock: {
     alignItems: 'center',
     marginBottom: scale(60),
   },
   brand: {
     fontWeight: '900' as const,
-    color: Colors.primary,
+    color: '#FFFFFF',
     textAlign: 'center' as const,
     marginBottom: scale(16),
   },
   pillars: {
     fontWeight: '700' as const,
-    color: '#FFFFFF',
+    color: '#7C3AED',
     textAlign: 'center' as const,
     lineHeight: 22,
     letterSpacing: 1,
@@ -186,14 +170,14 @@ const styles = StyleSheet.create({
   },
   fourPillars: {
     fontWeight: '700' as const,
-    color: Colors.primary,
+    color: 'rgba(255,255,255,0.7)',
     textAlign: 'center' as const,
     lineHeight: 22,
     marginBottom: scale(8),
   },
   completeYou: {
     fontWeight: '700' as const,
-    color: Colors.primary,
+    color: 'rgba(255,255,255,0.7)',
     textAlign: 'center' as const,
     lineHeight: 22,
   },
@@ -211,7 +195,7 @@ const styles = StyleSheet.create({
     gap: scale(10),
   },
   primaryButtonText: {
-    color: Colors.textInverse,
+    color: '#FFFFFF',
     fontWeight: '700' as const,
   },
   secondaryButton: {
@@ -219,7 +203,8 @@ const styles = StyleSheet.create({
     paddingVertical: scale(14),
   },
   secondaryButtonText: {
-    color: Colors.textSecondary,
+    color: '#FFFFFF',
     fontWeight: '500' as const,
+    opacity: 0.8,
   },
 });

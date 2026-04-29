@@ -67,8 +67,8 @@ const JOURNAL_CATEGORIES: JournalPrompt[] = [
   {
     id: 'growth',
     category: 'Growth',
-    icon: <Sparkles size={22} color="#34D399" strokeWidth={1.8} />,
-    color: '#34D399',
+    icon: <Sparkles size={22} color="#22C55E" strokeWidth={1.8} />,
+    color: '#22C55E',
     title: 'Personal Growth',
     prompts: [
       'What is a fear you\'d like to overcome?',

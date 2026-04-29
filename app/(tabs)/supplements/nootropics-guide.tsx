@@ -88,7 +88,7 @@ const BEGINNER_PROTOCOL = [
   'After 8 weeks, assess and add Bacopa Monnieri if memory improvement is a goal',
 ];
 
-const ACCENT = '#2563EB';
+const ACCENT = '#38BDF8';
 
 function NootropicCard({ item, index }: { item: NootropicItem; index: number }) {
   return (
@@ -141,7 +141,7 @@ export default function NootropicsGuideScreen() {
         </View>
 
         <LinearGradient
-          colors={[ACCENT, '#1E40AF']}
+          colors={[ACCENT, '#BAE6FD']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.lockedHero}

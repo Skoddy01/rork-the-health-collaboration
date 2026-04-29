@@ -20,7 +20,7 @@ import { useApp } from '@/providers/AppProvider';
 console.log("[HormoneProtocol] Screen loaded");
 
 
-const ACCENT = '#2563EB';
+const ACCENT = '#38BDF8';
 
 interface ProtocolItem {
   name: string;
@@ -93,7 +93,7 @@ export default function HormoneProtocolScreen() {
         </View>
 
         <LinearGradient
-          colors={[ACCENT, '#1E40AF']}
+          colors={[ACCENT, '#BAE6FD']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.lockedHero}

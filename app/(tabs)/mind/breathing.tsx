@@ -10,17 +10,14 @@ import {
   Modal,
 } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ChevronDown, Info, X, Star, StarOff } from 'lucide-react-native';
+import { ChevronDown, Info, X, Star } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { breathPatterns, breathTechniqueInfoMap, BreathPattern } from '@/constants/terpenes';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useResponsive } from '@/utils/responsive';
 import { playBreathInSound, playBreathHoldSound, playBreathOutSound, cleanupBreathAudio, preloadBreathAudio } from '@/utils/breathAudio';
 console.log("[Breathing] Screen loaded");
 
-
-const PRIORITY_STORAGE_KEY = 'breathing_priority_technique';
 
 type BreathPhase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'holdAfter';
 type SessionState = 'idle' | 'preCountdown' | 'running' | 'complete';
@@ -82,7 +79,6 @@ export default function BreathingScreen() {
   const params = useLocalSearchParams<{ techniqueId?: string }>();
   const { fs, ms, circleSize } = useResponsive();
 
-  const [priorityId, setPriorityId] = useState<string>('478');
   const [selectedPattern, setSelectedPattern] = useState<BreathPattern>(breathPatterns[0]);
   const [showInfo, setShowInfo] = useState<boolean>(false);
   const [showPatternPicker, setShowPatternPicker] = useState<boolean>(false);
@@ -117,21 +113,11 @@ export default function BreathingScreen() {
   });
 
   useEffect(() => {
-    void AsyncStorage.getItem(PRIORITY_STORAGE_KEY).then(stored => {
-      if (stored) setPriorityId(stored);
-      const techniqueId = params.techniqueId || stored || '478';
-      const found = breathPatterns.find(p => p.id === techniqueId) ?? breathPatterns[0];
-      setSelectedPattern(found);
-      console.log('[Breathing] Loaded technique:', found.name);
-    });
+    const techniqueId = params.techniqueId || '478';
+    const found = breathPatterns.find(p => p.id === techniqueId) ?? breathPatterns[0];
+    setSelectedPattern(found);
+    console.log('[Breathing] Loaded technique:', found.name);
   }, [params.techniqueId]);
-
-  const handleSetPriority = useCallback(async (id: string) => {
-    console.log('[Breathing] Setting priority:', id);
-    setPriorityId(id);
-    await AsyncStorage.setItem(PRIORITY_STORAGE_KEY, id);
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  }, []);
 
   const currentInfo = breathTechniqueInfoMap[selectedPattern.id];
 
@@ -253,6 +239,13 @@ export default function BreathingScreen() {
 
     if (eng.phaseRemaining <= 0) {
       advancePhase();
+    } else {
+      const step = eng.phaseSteps[eng.stepIdx];
+      const isHoldPhase = step.phase === 'hold' || step.phase === 'holdAfter';
+      const isFirstTick = eng.phaseRemaining === step.duration - 1;
+      if (isHoldPhase && !isFirstTick) {
+        void playBreathHoldSound();
+      }
     }
   }, [advancePhase]);
 
@@ -384,11 +377,7 @@ export default function BreathingScreen() {
     circleContainer: { minHeight: circleSize + ms(80) },
   };
 
-  const orderedPatterns = [...breathPatterns].sort((a, b) => {
-    if (a.id === priorityId) return -1;
-    if (b.id === priorityId) return 1;
-    return 0;
-  });
+  const orderedPatterns = breathPatterns;
 
   return (
     <View style={styles.container}>
@@ -408,7 +397,7 @@ export default function BreathingScreen() {
         testID="breathing-pattern-selector"
       >
         <View style={styles.patternSelectorLeft}>
-          {selectedPattern.id === priorityId && (
+          {selectedPattern.id === '478' && (
             <Star size={14} color="#F5C542" fill="#F5C542" />
           )}
           <View style={{ flex: 1 }}>
@@ -436,21 +425,9 @@ export default function BreathingScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.patternOptionLeft}>
-                <TouchableOpacity
-                  style={styles.priorityBtn}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    void handleSetPriority(p.id);
-                  }}
-                  activeOpacity={0.6}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  {p.id === priorityId ? (
-                    <Star size={16} color="#F5C542" fill="#F5C542" />
-                  ) : (
-                    <StarOff size={16} color={Colors.textMuted} />
-                  )}
-                </TouchableOpacity>
+                <View style={styles.priorityBtn}>
+                  {p.id === '478' && <Star size={16} color="#F5C542" fill="#F5C542" />}
+                </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[
                     styles.patternOptionName,
@@ -466,10 +443,6 @@ export default function BreathingScreen() {
               </Text>
             </TouchableOpacity>
           ))}
-          <View style={styles.priorityHint}>
-            <Star size={11} color="#F5C542" fill="#F5C542" />
-            <Text style={styles.priorityHintText}>Tap the star to set your priority technique</Text>
-          </View>
         </View>
       )}
 
@@ -768,19 +741,6 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontWeight: '500' as const,
     marginLeft: 8,
-  },
-  priorityHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(245,197,66,0.06)',
-  },
-  priorityHintText: {
-    fontSize: 11,
-    color: Colors.textMuted,
-    fontWeight: '500' as const,
   },
   circleContainer: {
     flex: 1,

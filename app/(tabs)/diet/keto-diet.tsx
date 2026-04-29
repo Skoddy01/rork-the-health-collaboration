@@ -40,8 +40,8 @@ import { useApp } from '@/providers/AppProvider';
 console.log("[KetoDiet] Screen loaded");
 
 
-const GREEN = '#16A34A';
-const GREEN_DARK = '#15803D';
+const GREEN = '#22C55E';
+const GREEN_DARK = '#BBF7D0';
 const KETOSIS_STORAGE_KEY = 'hal_thc_ketosis_tracker';
 
 interface KetosisEntry {
@@ -297,9 +297,9 @@ function InsightsSummary({ entries }: { entries: KetosisEntry[] }) {
 
   const rows = [
     { icon: TestTube, label: 'Most Used Test Method', value: insights.mostUsedMethod, color: GREEN },
-    { icon: Activity, label: 'How I Feel — Most Common', value: insights.mostCommonFeeling, color: '#60A5FA' },
+    { icon: Activity, label: 'How I Feel — Most Common', value: insights.mostCommonFeeling, color: '#38BDF8' },
     { icon: Beaker, label: 'Average Ketone Reading', value: `${insights.averageReading} mmol/L`, color: '#FBBF24' },
-    { icon: Plus, label: 'Total Readings Logged', value: `${insights.totalReadings}`, color: '#A78BFA' },
+    { icon: Plus, label: 'Total Readings Logged', value: `${insights.totalReadings}`, color: '#8B5CF6' },
     { icon: Zap, label: 'Days in Optimal Ketosis', value: `${insights.optimalDays}`, color: '#4ADE80' },
     { icon: TrendIcon, label: 'Trend', value: insights.trend, color: trendColor },
   ];
@@ -908,8 +908,8 @@ export default function KetoDietScreen() {
               </View>
               <View style={styles.testMethodTitleWrap}>
                 <Text style={styles.testMethodTitle}>Breath Ketone Meter</Text>
-                <View style={[styles.testBadge, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
-                  <Text style={[styles.testBadgeText, { color: '#60A5FA' }]}>CONVENIENT</Text>
+                <View style={[styles.testBadge, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
+                  <Text style={[styles.testBadgeText, { color: '#38BDF8' }]}>CONVENIENT</Text>
                 </View>
               </View>
             </View>

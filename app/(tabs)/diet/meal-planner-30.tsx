@@ -31,9 +31,9 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const GREEN = '#16A34A';
+const GREEN = '#22C55E';
 
-const WEEK_COLORS = ['#16A34A', '#2563EB', '#EA580C', '#6B46C1'] as const;
+const WEEK_COLORS = ['#22C55E', '#38BDF8', '#F97316', '#8B5CF6'] as const;
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
 
@@ -88,10 +88,10 @@ const WEEKLY_PLANS: WeekPlan[] = [
 
 const MEAL_ROWS: { key: keyof DayPlan; label: string; iconBg: string; iconColor: string; Icon: typeof Coffee }[] = [
   { key: 'breakfast', label: 'Breakfast', iconBg: 'rgba(217, 119, 6, 0.15)', iconColor: '#D97706', Icon: Coffee },
-  { key: 'morningSnack', label: 'Morning Snack', iconBg: 'rgba(22, 163, 74, 0.15)', iconColor: '#16A34A', Icon: Apple },
-  { key: 'lunch', label: 'Lunch', iconBg: 'rgba(37, 99, 235, 0.15)', iconColor: '#2563EB', Icon: Sun },
+  { key: 'morningSnack', label: 'Morning Snack', iconBg: 'rgba(34, 197, 94, 0.15)', iconColor: '#22C55E', Icon: Apple },
+  { key: 'lunch', label: 'Lunch', iconBg: 'rgba(56, 189, 248, 0.15)', iconColor: '#38BDF8', Icon: Sun },
   { key: 'dinner', label: 'Dinner', iconBg: 'rgba(124, 58, 237, 0.15)', iconColor: '#7C3AED', Icon: Moon },
-  { key: 'afternoonSnack', label: 'Snack Option', iconBg: 'rgba(234, 88, 12, 0.15)', iconColor: '#EA580C', Icon: Cookie },
+  { key: 'afternoonSnack', label: 'Snack Option', iconBg: 'rgba(249, 115, 22, 0.15)', iconColor: '#F97316', Icon: Cookie },
 ];
 
 export default function MealPlanner30Screen() {
@@ -156,7 +156,7 @@ export default function MealPlanner30Screen() {
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={['#16A34A', '#15803D']}
+          colors={['#22C55E', '#BBF7D0']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroCard}

@@ -65,21 +65,21 @@ const DEFAULT_CHANNELS: Channel[] = [
 ];
 
 const CHANNEL_ICONS: Record<string, React.ReactNode> = {
-  'message': <MessageCircle size={18} color="#C8E86E" />,
-  'brain': <Brain size={18} color="#A78BFA" />,
-  'dumbbell': <Dumbbell size={18} color="#FB923C" />,
-  'moon': <Moon size={18} color="#60A5FA" />,
+  'message': <MessageCircle size={18} color="#7C3AED" />,
+  'brain': <Brain size={18} color="#8B5CF6" />,
+  'dumbbell': <Dumbbell size={18} color="#F97316" />,
+  'moon': <Moon size={18} color="#38BDF8" />,
   'sparkles': <Sparkles size={18} color="#F5C542" />,
-  'heart': <Heart size={18} color="#EC4899" />,
+  'heart': <Heart size={18} color="#8B5CF6" />,
 };
 
 const CHANNEL_ACCENT: Record<string, string> = {
-  'general': '#C8E86E',
-  'mindfulness': '#A78BFA',
-  'fitness': '#FB923C',
-  'sleep': '#60A5FA',
+  'general': '#7C3AED',
+  'mindfulness': '#8B5CF6',
+  'fitness': '#F97316',
+  'sleep': '#38BDF8',
   'coaching': '#F5C542',
-  'gratitude': '#EC4899',
+  'gratitude': '#8B5CF6',
 };
 
 const SAMPLE_MESSAGES: Record<string, Message[]> = {
@@ -105,7 +105,7 @@ function getInitials(name: string): string {
 }
 
 function getAvatarColor(name: string): string {
-  const colors = ['#A78BFA', '#FB923C', '#34D399', '#60A5FA', '#EC4899', '#F5C542', '#C8E86E'];
+  const colors = ['#8B5CF6', '#F97316', '#22C55E', '#38BDF8', '#C4B5FD', '#F5C542', '#7C3AED'];
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -443,14 +443,14 @@ export default function CommunityScreen() {
         );
       })}
 
-      {!isPremium && (
+      {!isPremium && !user && (
         <TouchableOpacity
           style={styles.upgradeCard}
           onPress={() => router.push('/paywall')}
           activeOpacity={0.8}
         >
           <LinearGradient
-            colors={['rgba(200,232,110,0.08)', 'rgba(245,197,66,0.08)']}
+            colors={['rgba(124,58,237,0.08)', 'rgba(245,197,66,0.08)']}
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -622,11 +622,11 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#34D399',
+    backgroundColor: '#22C55E',
   },
   onlineText: {
     fontSize: 12,
-    color: '#34D399',
+    color: '#22C55E',
     fontWeight: '600' as const,
   },
   channelSectionLabel: {

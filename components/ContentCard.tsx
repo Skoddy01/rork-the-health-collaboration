@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Lock, ChevronRight } from 'lucide-react-native';
+import { Lock, ChevronRight, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/colors';
 import { useApp } from '@/providers/AppProvider';
@@ -34,7 +34,7 @@ export default React.memo(function ContentCard({ item, accentColor, isPremiumSec
       <View style={styles.content}>
         <View style={styles.titleRow}>
           <Text style={[styles.title, isLocked && styles.titleLocked, premiumTextColor ? { color: premiumTextColor } : undefined]}>{item.title}</Text>
-
+          {!isLocked && <Star size={12} color="#FACC15" fill="#FACC15" />}
         </View>
         <Text style={styles.subtitle}>{item.subtitle}</Text>
       </View>

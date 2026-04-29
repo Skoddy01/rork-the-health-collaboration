@@ -8,11 +8,9 @@ import { useColors } from '@/hooks/useColors';
 import { usePillarColors } from '@/hooks/useColors';
 import { pillarData } from '@/constants/mock';
 import { useApp } from '@/providers/AppProvider';
-
 import { useResponsive } from '@/utils/responsive';
 import LineHeartIcon from '@/components/LineHeartIcon';
 console.log("[Index] Screen loaded");
-
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -62,109 +60,110 @@ export default function DashboardScreen() {
   }), [s, ms, pillarCardWidth]);
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={d.scrollContent} showsVerticalScrollIndicator={false}>
-      <View style={[styles.greeting, d.greeting]}>
-        <Text style={[styles.greetingText, d.greetingText, { color: colors.text }]}>
-          {user ? `Welcome back, ${user.name}` : 'Welcome to THC'}
-        </Text>
-        <Text style={[styles.dateText, d.dateText, { color: colors.textSecondary }]}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</Text>
-      </View>
-
-      <View style={[styles.scoreCard, d.scoreCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <LinearGradient
-          colors={['rgba(200,232,110,0.08)', 'rgba(200,232,110,0.02)', 'transparent']}
-          style={StyleSheet.absoluteFill}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-        <View style={styles.scoreLeft}>
-          <Text style={[styles.scoreLabel, d.scoreLabel]}>WELLNESS SCORE</Text>
-          <View style={[styles.scoreRow, d.scoreRow]}>
-            <Text style={[styles.scoreValue, d.scoreValue]}>{overallScore}</Text>
-            <Text style={[styles.scoreMax, d.scoreMax]}>/100</Text>
-          </View>
-          <View style={styles.trendRow}>
-            <TrendingUp size={14} color={colors.success} />
-            <Text style={[styles.trendText, d.trendText]}>+5 this week</Text>
-          </View>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={d.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={[styles.greeting, d.greeting]}>
+          <Text style={[styles.greetingText, d.greetingText, { color: colors.text }]}>
+            {user ? `Welcome back, ${user.name}` : 'Welcome to THC'}
+          </Text>
+          <Text style={[styles.dateText, d.dateText, { color: colors.textSecondary }]}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</Text>
         </View>
-        <View style={[styles.scoreCircle, d.scoreCircle]}>
-          <View style={[styles.scoreCircleInner, d.scoreCircleInner]}>
-            <Text style={[styles.scoreCircleText, d.scoreCircleText]}>{overallScore}%</Text>
-          </View>
-        </View>
-      </View>
 
-      <Text style={[styles.sectionTitle, d.sectionTitle, { color: colors.text }]}>Your Pillars</Text>
-      <View style={[styles.pillarsGrid, d.pillarsGrid]}>
-        {pillarData.map((pillar) => {
-          const color = PillarColors[pillar.key as PillarKey];
-          const mutedColor = PillarMutedColors[pillar.key as PillarKey];
-          return (
-            <TouchableOpacity
-              key={pillar.key}
-              style={[styles.pillarCard, d.pillarCard, { borderColor: color + '30', backgroundColor: colors.surface }]}
-              activeOpacity={0.7}
-              onPress={() => {
-                if (pillar.key === 'mind') router.push('/(tabs)/mind');
-                else if (pillar.key === 'exercise') router.push('/(tabs)/exercise');
-                else if (pillar.key === 'diet') router.push('/(tabs)/diet');
-                else router.push('/(tabs)/supplements');
-              }}
-            >
-              <View style={[styles.pillarIconWrap, d.pillarIconWrap, { backgroundColor: mutedColor }]}>
-                <View style={styles.pillarScoreBadge}>
-                  <Text style={[styles.pillarScoreText, d.pillarScoreText, { color }]}>{pillar.score}</Text>
-                </View>
-              </View>
-              <Text style={[styles.pillarLabel, d.pillarLabel, { color: colors.text }]}>{pillar.label}</Text>
-              <View style={[styles.pillarBar, d.pillarBar, { backgroundColor: colors.surfaceHighlight }]}>
-                <View style={[styles.pillarBarFill, { width: `${pillar.score}%`, backgroundColor: color }]} />
-              </View>
-              <View style={styles.pillarMeta}>
-                <Flame size={11} color={colors.exercise} />
-                <Text style={[styles.pillarStreak, d.pillarStreak, { color: colors.textSecondary }]}>{pillar.streak}d streak</Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {!isPremium && (
-        <TouchableOpacity style={[styles.promoBanner, d.promoBanner]} onPress={() => router.push('/paywall')} activeOpacity={0.8}>
+        <View style={[styles.scoreCard, d.scoreCard, { backgroundColor: '#7C3AED', borderColor: 'transparent' }]}>
           <LinearGradient
-            colors={['rgba(245,197,66,0.12)', 'rgba(245,197,66,0.04)']}
+            colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.04)', 'transparent']}
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           />
-          <View style={[styles.promoLeft, d.promoLeft]}>
-            <LineHeartIcon size={20} color="#FFFFFF" strokeWidth={1.8} />
-            <View>
-              <Text style={[styles.promoTitle, d.promoTitle]}>Unlock THC Premium</Text>
-              <Text style={[styles.promoSubtitle, d.promoSubtitle]}>Lifetime access • One-time $29.99</Text>
+          <View style={styles.scoreLeft}>
+            <Text style={[styles.scoreLabel, d.scoreLabel]}>WELLNESS SCORE</Text>
+            <View style={[styles.scoreRow, d.scoreRow]}>
+              <Text style={[styles.scoreValue, d.scoreValue]}>{overallScore}</Text>
+              <Text style={[styles.scoreMax, d.scoreMax]}>/100</Text>
+            </View>
+            <View style={styles.trendRow}>
+              <TrendingUp size={14} color="#FFFFFF" />
+              <Text style={[styles.trendText, d.trendText]}>+5 this week</Text>
             </View>
           </View>
-          <ChevronRight size={18} color={colors.premium} />
-        </TouchableOpacity>
-      )}
-
-      <View style={[styles.quickActions, d.quickActions]}>
-        <TouchableOpacity style={[styles.quickAction, d.quickAction, { backgroundColor: colors.surface }]} onPress={() => router.push('/journal')} activeOpacity={0.7}>
-          <View style={[styles.quickIconWrap, d.quickIconWrap, { backgroundColor: colors.mindMuted }]}>
-            <BookOpen size={18} color={colors.mind} />
+          <View style={[styles.scoreCircle, d.scoreCircle]}>
+            <View style={[styles.scoreCircleInner, d.scoreCircleInner]}>
+              <Text style={[styles.scoreCircleText, d.scoreCircleText]}>{overallScore}%</Text>
+            </View>
           </View>
-          <Text style={[styles.quickText, d.quickText, { color: colors.text }]}>Journal</Text>
+        </View>
 
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.quickAction, d.quickAction, { backgroundColor: colors.surface }]} onPress={() => router.push('/settings')} activeOpacity={0.7}>
-          <View style={[styles.quickIconWrap, d.quickIconWrap, { backgroundColor: colors.surfaceHighlight }]}>
-            <Settings size={18} color={colors.textSecondary} />
-          </View>
-          <Text style={[styles.quickText, d.quickText, { color: colors.text }]}>Settings</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        <Text style={[styles.sectionTitle, d.sectionTitle, { color: colors.text }]}>Your Pillars</Text>
+        <View style={[styles.pillarsGrid, d.pillarsGrid]}>
+          {pillarData.map((pillar) => {
+            const color = PillarColors[pillar.key as PillarKey];
+            const mutedColor = PillarMutedColors[pillar.key as PillarKey];
+            return (
+              <TouchableOpacity
+                key={pillar.key}
+                style={[styles.pillarCard, d.pillarCard, { borderColor: color + '30', backgroundColor: colors.surface }]}
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (pillar.key === 'mind') router.push('/(tabs)/mind');
+                  else if (pillar.key === 'exercise') router.push('/(tabs)/exercise');
+                  else if (pillar.key === 'diet') router.push('/(tabs)/diet');
+                  else router.push('/(tabs)/supplements');
+                }}
+              >
+                <View style={[styles.pillarIconWrap, d.pillarIconWrap, { backgroundColor: mutedColor }]}>
+                  <View style={styles.pillarScoreBadge}>
+                    <Text style={[styles.pillarScoreText, d.pillarScoreText, { color }]}>{pillar.score}</Text>
+                  </View>
+                </View>
+                <Text style={[styles.pillarLabel, d.pillarLabel, { color: colors.text }]}>{pillar.label}</Text>
+                <View style={[styles.pillarBar, d.pillarBar, { backgroundColor: colors.surfaceHighlight }]}>
+                  <View style={[styles.pillarBarFill, { width: `${pillar.score}%`, backgroundColor: color }]} />
+                </View>
+                <View style={styles.pillarMeta}>
+                  <Flame size={11} color={colors.exercise} />
+                  <Text style={[styles.pillarStreak, d.pillarStreak, { color: colors.textSecondary }]}>{pillar.streak}d streak</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {!isPremium && !user && (
+          <TouchableOpacity style={[styles.promoBanner, d.promoBanner]} onPress={() => router.push('/paywall')} activeOpacity={0.8}>
+            <LinearGradient
+              colors={['rgba(245,197,66,0.12)', 'rgba(245,197,66,0.04)']}
+              style={StyleSheet.absoluteFill}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            />
+            <View style={[styles.promoLeft, d.promoLeft]}>
+              <LineHeartIcon size={20} color="#FFFFFF" strokeWidth={1.8} />
+              <View>
+                <Text style={[styles.promoTitle, d.promoTitle]}>Unlock THC Premium</Text>
+                <Text style={[styles.promoSubtitle, d.promoSubtitle]}>$5/month or $45/year</Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color={colors.premium} />
+          </TouchableOpacity>
+        )}
+
+        <View style={[styles.quickActions, d.quickActions]}>
+          <TouchableOpacity style={[styles.quickAction, d.quickAction, { backgroundColor: colors.surface }]} onPress={() => router.push('/journal')} activeOpacity={0.7}>
+            <View style={[styles.quickIconWrap, d.quickIconWrap, { backgroundColor: colors.mindMuted }]}>
+              <BookOpen size={18} color={colors.mind} />
+            </View>
+            <Text style={[styles.quickText, d.quickText, { color: colors.text }]}>Journal</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.quickAction, d.quickAction, { backgroundColor: colors.surface }]} onPress={() => router.push('/settings')} activeOpacity={0.7}>
+            <View style={[styles.quickIconWrap, d.quickIconWrap, { backgroundColor: colors.surfaceHighlight }]}>
+              <Settings size={18} color={colors.textSecondary} />
+            </View>
+            <Text style={[styles.quickText, d.quickText, { color: colors.text }]}>Settings</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -197,8 +196,9 @@ const styles = StyleSheet.create({
   },
   scoreLabel: {
     fontWeight: '700' as const,
-    color: Colors.textMuted,
+    color: '#FFFFFF',
     letterSpacing: 1.5,
+    opacity: 0.85,
   },
   scoreRow: {
     flexDirection: 'row',
@@ -206,10 +206,11 @@ const styles = StyleSheet.create({
   },
   scoreValue: {
     fontWeight: '800' as const,
-    color: Colors.primary,
+    color: '#FFFFFF',
   },
   scoreMax: {
-    color: Colors.textMuted,
+    color: '#FFFFFF',
+    opacity: 0.8,
     marginLeft: 2,
   },
   trendRow: {
@@ -218,8 +219,9 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   trendText: {
-    color: Colors.success,
+    color: '#FFFFFF',
     fontWeight: '600' as const,
+    opacity: 0.9,
   },
   scoreCircle: {
     alignItems: 'center',
@@ -227,14 +229,14 @@ const styles = StyleSheet.create({
   },
   scoreCircleInner: {
     borderWidth: 4,
-    borderColor: Colors.primary,
+    borderColor: 'rgba(255,255,255,0.6)',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primaryMuted,
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   scoreCircleText: {
     fontWeight: '800' as const,
-    color: Colors.primary,
+    color: '#FFFFFF',
   },
   sectionTitle: {
     fontWeight: '700' as const,
@@ -324,3 +326,4 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
 });
+

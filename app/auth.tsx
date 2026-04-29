@@ -62,10 +62,11 @@ export default function AuthScreen() {
       await new Promise(resolve => setTimeout(resolve, 800));
       if (isSignUp) {
         await signUp(email, password, name);
+        router.replace('/(tabs)/home');
       } else {
         await signIn(email, password);
+        router.replace('/(tabs)/home');
       }
-      router.replace('/(tabs)/home');
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -287,13 +288,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: Colors.surface,
     padding: 4,
+    borderWidth: 1,
+    borderColor: '#7C3AED',
   },
   tab: {
     flex: 1,
     alignItems: 'center',
   },
   tabActive: {
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'rgba(124,58,237,0.12)',
   },
   tabText: {
     color: Colors.textMuted,
@@ -308,7 +311,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#7C3AED',
   },
   input: {
     flex: 1,
@@ -321,6 +324,8 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: Colors.primary,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#7C3AED',
   },
   submitButtonLoading: {
     opacity: 0.7,

@@ -121,7 +121,7 @@ export default function GutHealthScreen() {
       showsVerticalScrollIndicator={false}
     >
       <LinearGradient
-        colors={['#16A34A', '#15803D']}
+        colors={['#22C55E', '#BBF7D0']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.heroCard}

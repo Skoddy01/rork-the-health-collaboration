@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Apple, Droplets, Leaf } from 'lucide-react-native';
+import { Apple, Droplets, Leaf, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 import { useColors } from '@/hooks/useColors';
@@ -14,14 +14,14 @@ console.log("[Index] Screen loaded");
 
 
 export default function DietScreen() {
-  const { isPremium } = useApp();
+  const { isPremium, user } = useApp();
   const colors = useColors();
   
   const router = useRouter();
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-      {!isPremium && (
+      {!isPremium && !user && (
         <View style={styles.premiumBannerWrap}>
           <TouchableOpacity
             style={styles.dietBannerButton}
@@ -44,15 +44,12 @@ export default function DietScreen() {
 
       <View style={styles.heroCard}>
         <LinearGradient
-          colors={['rgba(52,211,153,0.12)', 'rgba(52,211,153,0.03)']}
+          colors={['rgba(34,197,94,0.12)', 'rgba(34,197,94,0.03)']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         />
         <View style={styles.heroTop}>
-          <View style={styles.heroIconWrap}>
-            <Apple size={28} color={Colors.diet} strokeWidth={1.5} />
-          </View>
           <View style={styles.heroStats}>
             <View style={styles.heroStat}>
               <Droplets size={14} color={Colors.textSecondary} />
@@ -72,7 +69,10 @@ export default function DietScreen() {
         <Text style={styles.heroBarLabel}>85% weekly goal</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Free Content</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Star size={14} color="#FACC15" fill="#FACC15" />
+        <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Free Content</Text>
+      </View>
       <View style={styles.contentList}>
         {dietContent.free.map(item => (
           <ContentCard key={item.id} item={item} accentColor={Colors.diet} />
@@ -82,7 +82,7 @@ export default function DietScreen() {
       <View style={styles.premiumHeader}>
         <Text style={styles.sectionTitle}>Premium Content</Text>
       </View>
-      {!isPremium && (
+      {!isPremium && !user && (
         <TouchableOpacity
           style={styles.unlockPremiumPill}
           onPress={() => router.push('/paywall')}
@@ -93,7 +93,7 @@ export default function DietScreen() {
         </TouchableOpacity>
       )}
 
-      {!isPremium && (
+      {!isPremium && !user && (
         <LockedSection
           title="Advanced Nutrition Tools"
           message="Macro calculator, meal plans & recipes"
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     backgroundColor: Colors.surface, borderRadius: 20, padding: 20, marginBottom: 28,
-    borderWidth: 1, borderColor: 'rgba(52,211,153,0.2)', overflow: 'hidden',
+    borderWidth: 1, borderColor: 'rgba(34,197,94,0.2)', overflow: 'hidden',
   },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   heroIconWrap: { width: 52, height: 52, borderRadius: 16, backgroundColor: Colors.dietMuted, alignItems: 'center', justifyContent: 'center' },

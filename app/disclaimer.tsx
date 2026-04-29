@@ -8,12 +8,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ShieldCheck, Check } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '@/constants/colors';
 import { useColors } from '@/hooks/useColors';
 import { LinearGradient } from 'expo-linear-gradient';
-import LineHeartIcon from '@/components/LineHeartIcon';
+import THCLogo from '@/components/THCLogo';
 console.log("[Disclaimer] Screen loaded");
 
 
@@ -55,13 +55,10 @@ export default function DisclaimerScreen() {
 
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View style={styles.logoRow}>
-          <View style={styles.logoContainer}>
-            <LineHeartIcon size={28} color="#FFFFFF" strokeWidth={1.2} />
-          </View>
+          <THCLogo size={56} />
         </View>
 
         <View style={styles.titleRow}>
-          <ShieldCheck size={22} color={Colors.warning} />
           <Text style={styles.title}>Important Health Disclaimer</Text>
         </View>
       </View>
@@ -125,7 +122,7 @@ export default function DisclaimerScreen() {
           testID="disclaimer-checkbox"
         >
           <View style={[styles.checkbox, agreed && styles.checkboxChecked]}>
-            {agreed && <Check size={14} color={Colors.background} strokeWidth={3} />}
+            {agreed && <Check size={14} color="#7C3AED" strokeWidth={3} />}
           </View>
           <Text style={styles.checkboxLabel}>
             I have read and understand that THC provides general wellness information only and is not a substitute for professional medical advice.
@@ -170,16 +167,6 @@ const styles = StyleSheet.create({
   },
   logoRow: {
     alignItems: 'center',
-  },
-  logoContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    backgroundColor: Colors.primaryMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(200, 232, 110, 0.2)',
   },
   titleRow: {
     flexDirection: 'row',
@@ -271,38 +258,43 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: Colors.textMuted,
+    borderColor: '#7C3AED',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 1,
     flexShrink: 0,
   },
   checkboxChecked: {
-    backgroundColor: Colors.success,
-    borderColor: Colors.success,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#7C3AED',
   },
   checkboxLabel: {
     flex: 1,
     fontSize: 13,
     lineHeight: 19,
-    color: Colors.textSecondary,
+    color: '#FFFFFF',
+    opacity: 0.9,
   },
   agreeButton: {
-    backgroundColor: Colors.success,
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#7C3AED',
   },
   agreeButtonDisabled: {
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: 'transparent',
+    borderColor: '#7C3AED',
   },
   agreeButtonText: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: Colors.background,
+    color: '#7C3AED',
   },
   agreeButtonTextDisabled: {
-    color: Colors.textMuted,
+    color: '#7C3AED',
+    opacity: 0.5,
   },
 });

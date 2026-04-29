@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Brain, Flame, Salad, FlaskConical, ArrowRight, Bell, Check } from 'lucide-react-native';
+import { Brain, Dumbbell, Apple, Pill, ArrowRight, Bell, Check } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Colors } from '@/constants/colors';
@@ -14,7 +14,7 @@ console.log("[Onboarding] Screen loaded");
 const { width: _width } = Dimensions.get('window');
 
 const iconMap: Record<string, React.ComponentType<{ size: number; color: string; strokeWidth?: number }>> = {
-  Brain, Flame, Salad, FlaskConical,
+  Brain, Dumbbell, Apple, Pill,
 };
 
 const NOTIFICATION_BENEFITS = [
@@ -38,6 +38,8 @@ export default function OnboardingScreen() {
   const slide = onboardingSlides[currentIndex];
   const IconComponent = iconMap[slide?.icon] || Brain;
   const isLast = currentIndex === onboardingSlides.length - 1;
+  // Supplements (#38BDF8) is a light sky-blue — needs dark text for contrast
+  const slideTextColor = slide?.color === '#38BDF8' ? '#0C4A6E' : '#FFFFFF';
 
   const animateTransition = useCallback(() => {
     fadeAnim.setValue(0);
@@ -126,7 +128,7 @@ export default function OnboardingScreen() {
             {NOTIFICATION_BENEFITS.map((benefit, index) => (
               <View key={index} style={styles.benefitRow}>
                 <View style={styles.checkCircle}>
-                  <Check size={14} color={Colors.background} strokeWidth={3} />
+                  <Check size={14} color="#FFFFFF" strokeWidth={3} />
                 </View>
                 <Text style={styles.benefitText}>{benefit}</Text>
               </View>
@@ -142,8 +144,8 @@ export default function OnboardingScreen() {
             activeOpacity={0.8}
             testID="onboarding-enable-notif-btn"
           >
-            <Bell size={20} color={Colors.background} strokeWidth={2} />
-            <Text style={[styles.nextButtonText, { color: Colors.background }]}>Enable Notifications</Text>
+            <Bell size={20} color="#FFFFFF" strokeWidth={2} />
+            <Text style={[styles.nextButtonText, { color: '#FFFFFF' }]}>Enable Notifications</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -169,8 +171,8 @@ export default function OnboardingScreen() {
 
       <Animated.View style={[styles.slideContent, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
         <View style={[styles.iconCircle, { backgroundColor: slide.color + '18' }]}>
-          <View style={[styles.iconInner, { backgroundColor: slide.color + '25' }]}>
-            <IconComponent size={48} color={slide.color} strokeWidth={1.5} />
+          <View style={[styles.iconInner, { backgroundColor: slide.color + '30' }]}>
+            <IconComponent size={64} color={slide.color} strokeWidth={2} />
           </View>
         </View>
 
@@ -198,8 +200,8 @@ export default function OnboardingScreen() {
           activeOpacity={0.8}
           testID="onboarding-next-btn"
         >
-          <Text style={styles.nextButtonText}>{isLast ? 'Get Started' : 'Next'}</Text>
-          <ArrowRight size={20} color={Colors.white} />
+          <Text style={[styles.nextButtonText, { color: slideTextColor }]}>{isLast ? 'Get Started' : 'Next'}</Text>
+          <ArrowRight size={20} color={slideTextColor} />
         </TouchableOpacity>
       </View>
     </View>
@@ -218,7 +220,8 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   skipText: {
-    color: Colors.textSecondary,
+    color: '#FFFFFF',
+    opacity: 0.7,
     fontSize: 15,
     fontWeight: '500' as const,
   },
@@ -257,7 +260,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: Colors.textSecondary,
+    color: '#FFFFFF',
+    opacity: 0.85,
     textAlign: 'center' as const,
     lineHeight: 24,
   },
@@ -317,7 +321,8 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
   },
   maybeLaterText: {
-    color: Colors.textSecondary,
+    color: '#FFFFFF',
+    opacity: 0.7,
     fontSize: 15,
     fontWeight: '500' as const,
   },

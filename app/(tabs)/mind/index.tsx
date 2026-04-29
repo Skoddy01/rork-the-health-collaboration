@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Brain, Sparkles, Timer, Lock, BookOpen, Zap, Wind, Layers, ChevronRight, Star, Activity, CircleDot, Music } from 'lucide-react-native';
-import LineHeartIcon from '@/components/LineHeartIcon';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Brain, Sparkles, Timer, Lock, BookOpen, Zap, Wind, Layers, ChevronRight, Star, Activity, Music, Moon, Heart, Users, Square, Repeat, Sunrise, Smile } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/colors';
@@ -13,27 +11,25 @@ import { breathPatterns } from '@/constants/terpenes';
 console.log("[Index] Screen loaded");
 
 
-const PRIORITY_STORAGE_KEY = 'breathing_priority_technique';
-
 const TECHNIQUE_ICONS: Record<string, React.ReactNode> = {
-  '478': <Wind size={20} color="#818CF8" strokeWidth={1.8} />,
-  'diaphragmatic': <Activity size={20} color="#34D399" strokeWidth={1.8} />,
-  'box': <Layers size={20} color="#60A5FA" strokeWidth={1.8} />,
-  'alternate-nostril': <CircleDot size={20} color="#FB923C" strokeWidth={1.8} />,
+  '478': <Wind size={20} color="#8B5CF6" strokeWidth={1.8} />,
+  'diaphragmatic': <Activity size={20} color="#8B5CF6" strokeWidth={1.8} />,
+  'box': <Square size={20} color="#8B5CF6" strokeWidth={1.8} />,
+  'alternate-nostril': <Repeat size={20} color="#8B5CF6" strokeWidth={1.8} />,
 };
 
 const TECHNIQUE_COLORS: Record<string, string> = {
-  '478': 'rgba(99,102,241,0.12)',
-  'diaphragmatic': 'rgba(52,211,153,0.12)',
-  'box': 'rgba(96,165,250,0.12)',
-  'alternate-nostril': 'rgba(251,146,60,0.12)',
+  '478': 'rgba(139,92,246,0.12)',
+  'diaphragmatic': 'rgba(139,92,246,0.12)',
+  'box': 'rgba(56,189,248,0.12)',
+  'alternate-nostril': 'rgba(139,92,246,0.12)',
 };
 
 const TECHNIQUE_ACCENT: Record<string, string> = {
-  '478': '#818CF8',
-  'diaphragmatic': '#34D399',
-  'box': '#60A5FA',
-  'alternate-nostril': '#FB923C',
+  '478': '#8B5CF6',
+  'diaphragmatic': '#22C55E',
+  'box': '#38BDF8',
+  'alternate-nostril': '#F97316',
 };
 
 const FREE_TECHNIQUES = ['478'];
@@ -43,23 +39,9 @@ import LockedSection from '@/components/LockedSection';
 
 
 export default function MindScreen() {
-  const { isPremium } = useApp();
+  const { isPremium, user, showToast } = useApp();
   const colors = useColors();
   const router = useRouter();
-  const [priorityId, setPriorityId] = useState<string>('478');
-
-  useEffect(() => {
-    void AsyncStorage.getItem(PRIORITY_STORAGE_KEY).then(stored => {
-      if (stored) setPriorityId(stored);
-    });
-  }, []);
-
-  const orderedPatterns = [...breathPatterns].sort((a, b) => {
-    if (a.id === priorityId) return -1;
-    if (b.id === priorityId) return 1;
-    return 0;
-  });
-
   const handleShowPaywall = () => {
     router.push('/paywall');
   };
@@ -67,7 +49,7 @@ export default function MindScreen() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Check 1: Premium banner at top */}
-      {!isPremium && (
+      {!isPremium && !user && (
         <View style={styles.premiumBannerWrap}>
           <TouchableOpacity
             style={styles.premiumBanner}
@@ -91,15 +73,12 @@ export default function MindScreen() {
 
       <View style={styles.heroCard}>
         <LinearGradient
-          colors={['rgba(167,139,250,0.12)', 'rgba(167,139,250,0.03)']}
+          colors={['rgba(139,92,246,0.12)', 'rgba(139,92,246,0.03)']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         />
         <View style={styles.heroTop}>
-          <View style={styles.heroIconWrap}>
-            <Brain size={28} color={Colors.mind} strokeWidth={1.5} />
-          </View>
           <View style={styles.heroStats}>
             <View style={styles.heroStat}>
               <Timer size={14} color={Colors.textSecondary} />
@@ -151,14 +130,17 @@ export default function MindScreen() {
         </TouchableOpacity>
       )}
 
-      <Text style={styles.sectionTitle}>Free Content</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Star size={14} color="#FACC15" fill="#FACC15" />
+          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Free Content</Text>
+        </View>
 
       <View style={styles.breathingSection}>
         <View style={styles.breathingSectionHeader}>
           <Text style={styles.breathingSectionTitle}>Breathing Sessions</Text>
         </View>
         <Text style={styles.breathingOptionsText}>1 Free Option · {PRO_TECHNIQUES.length} more with Premium</Text>
-        {orderedPatterns.filter(p => FREE_TECHNIQUES.includes(p.id)).map((pattern, idx) => (
+        {breathPatterns.filter(p => FREE_TECHNIQUES.includes(p.id)).map((pattern, idx) => (
           <TouchableOpacity
             key={pattern.id}
             style={[
@@ -172,29 +154,27 @@ export default function MindScreen() {
             <View style={styles.featureCardLeft}>
               <View style={[
                 styles.techniqueIcon,
-                { backgroundColor: TECHNIQUE_COLORS[pattern.id] || 'rgba(167,139,250,0.12)' },
+                { backgroundColor: TECHNIQUE_COLORS[pattern.id] || 'rgba(139,92,246,0.12)' },
               ]}>
                 {TECHNIQUE_ICONS[pattern.id] || <Wind size={20} color={Colors.mind} strokeWidth={1.8} />}
               </View>
               <View style={styles.featureInfo}>
                 <View style={styles.techniqueTitleRow}>
                   <Text style={styles.featureTitle}>{pattern.name}</Text>
-                  {pattern.id === priorityId && (
-                    <Star size={13} color="#F5C542" fill="#F5C542" />
-                  )}
+                  <Star size={13} color="#F5C542" fill="#F5C542" />
                 </View>
                 <Text style={styles.featureSubtitle}>{pattern.description}</Text>
               </View>
             </View>
             <View style={styles.featureMeta}>
-              <Text style={[styles.featureDuration, { color: TECHNIQUE_ACCENT[pattern.id] || Colors.mind }]}>
+              <Text style={[styles.featureDuration, { color: '#8B5CF6' }]}>
                 {pattern.inhale + pattern.hold + pattern.exhale + pattern.holdAfter}s
               </Text>
               <ChevronRight size={16} color={Colors.textSecondary} />
             </View>
           </TouchableOpacity>
         ))}
-        {orderedPatterns.filter(p => PRO_TECHNIQUES.includes(p.id)).map((pattern) => {
+        {breathPatterns.filter(p => PRO_TECHNIQUES.includes(p.id)).map((pattern) => {
           const isUnlocked = isPremium;
           return (
             <TouchableOpacity
@@ -210,7 +190,7 @@ export default function MindScreen() {
               <View style={styles.featureCardLeft}>
                 <View style={[
                   styles.techniqueIcon,
-                  { backgroundColor: isUnlocked ? (TECHNIQUE_COLORS[pattern.id] || 'rgba(167,139,250,0.12)') : 'rgba(150,150,150,0.1)' },
+                  { backgroundColor: isUnlocked ? (TECHNIQUE_COLORS[pattern.id] || 'rgba(139,92,246,0.12)') : 'rgba(150,150,150,0.1)' },
                 ]}>
                   {isUnlocked
                     ? (TECHNIQUE_ICONS[pattern.id] || <Wind size={20} color={Colors.mind} strokeWidth={1.8} />)
@@ -220,10 +200,6 @@ export default function MindScreen() {
                 <View style={styles.featureInfo}>
                   <View style={styles.techniqueTitleRow}>
                     <Text style={[styles.featureTitle, !isUnlocked && { color: '#999999' }]}>{pattern.name}</Text>
-
-                    {isUnlocked && pattern.id === priorityId && (
-                      <Star size={13} color="#F5C542" fill="#F5C542" />
-                    )}
                   </View>
                   <Text style={[styles.featureSubtitle, !isUnlocked && { color: Colors.textMuted }]}>{pattern.description}</Text>
                 </View>
@@ -231,7 +207,7 @@ export default function MindScreen() {
               <View style={styles.featureMeta}>
                 {isUnlocked ? (
                   <>
-                    <Text style={[styles.featureDuration, { color: TECHNIQUE_ACCENT[pattern.id] || Colors.mind }]}>
+                    <Text style={[styles.featureDuration, { color: '#8B5CF6' }]}>
                       {pattern.inhale + pattern.hold + pattern.exhale + pattern.holdAfter}s
                     </Text>
                     <ChevronRight size={16} color={Colors.textSecondary} />
@@ -257,11 +233,14 @@ export default function MindScreen() {
           testID="mind-morning-intention"
         >
           <View style={styles.featureCardLeft}>
-            <View style={[styles.techniqueIcon, { backgroundColor: 'rgba(245,197,66,0.12)' }]}>
-              <Sparkles size={20} color="#F5C542" strokeWidth={1.8} />
+            <View style={[styles.techniqueIcon, { backgroundColor: 'rgba(139,92,246,0.12)' }]}>
+              <Sunrise size={20} color="#8B5CF6" strokeWidth={1.8} />
             </View>
             <View style={styles.featureInfo}>
-              <Text style={styles.featureTitle}>Morning Intention</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.featureTitle}>Morning Intention</Text>
+                <Star size={12} color="#FACC15" fill="#FACC15" />
+              </View>
               <Text style={styles.featureSubtitle}>Set your daily mindfulness focus</Text>
             </View>
           </View>
@@ -276,7 +255,7 @@ export default function MindScreen() {
           testID="mind-session-builder"
         >
           <View style={styles.featureCardLeft}>
-            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? 'rgba(167,139,250,0.12)' : 'rgba(150,150,150,0.1)' }]}>
+            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? 'rgba(139,92,246,0.12)' : 'rgba(150,150,150,0.1)' }]}>
               {isPremium
                 ? <Layers size={20} color={Colors.mind} strokeWidth={1.8} />
                 : <Lock size={18} color={Colors.textMuted} strokeWidth={1.8} />
@@ -306,7 +285,7 @@ export default function MindScreen() {
       <View style={styles.premiumHeader}>
         <Text style={styles.sectionTitle}>Premium Content</Text>
       </View>
-      {!isPremium && (
+      {!isPremium && !user && (
         <TouchableOpacity
           style={styles.unlockPremiumPill}
           onPress={handleShowPaywall}
@@ -325,10 +304,16 @@ export default function MindScreen() {
           activeOpacity={0.7}
           testID="mind-quick-journal"
         >
-          <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(139,92,246,0.1)' }]}>
-            <BookOpen size={18} color={Colors.mind} />
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? 'rgba(139,92,246,0.1)' : 'rgba(150,150,150,0.1)' }]}>
+              {isPremium ? <BookOpen size={18} color={Colors.mind} /> : <Lock size={18} color="#999999" />}
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.quickActionLabel, !isPremium && { color: '#999999' }]}>Guided Journal</Text>
+              <Text style={[styles.featureSubtitle, !isPremium && { color: Colors.textMuted }]}>Calm & collected journaling experience</Text>
+            </View>
           </View>
-          <Text style={[styles.quickActionLabel, !isPremium && { color: '#999999' }]}>Guided Journal</Text>
+          <ChevronRight size={16} color={isPremium ? Colors.textSecondary : Colors.textMuted} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.quickAction}
@@ -336,10 +321,16 @@ export default function MindScreen() {
           activeOpacity={0.7}
           testID="mind-quick-focus"
         >
-          <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(139,92,246,0.1)' }]}>
-            <Zap size={18} color={Colors.mind} />
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? 'rgba(139,92,246,0.1)' : 'rgba(150,150,150,0.1)' }]}>
+              {isPremium ? <Timer size={18} color={Colors.mind} /> : <Lock size={18} color="#999999" />}
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.quickActionLabel, !isPremium && { color: '#999999' }]}>Focus Timer</Text>
+              <Text style={[styles.featureSubtitle, !isPremium && { color: Colors.textMuted }]}>Timed focus sessions for peak performance</Text>
+            </View>
           </View>
-          <Text style={[styles.quickActionLabel, !isPremium && { color: '#999999' }]}>Focus Timer</Text>
+          <ChevronRight size={16} color={isPremium ? Colors.textSecondary : Colors.textMuted} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.quickAction}
@@ -347,30 +338,107 @@ export default function MindScreen() {
           activeOpacity={0.7}
           testID="mind-quick-sleep-lounge"
         >
-          <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(139,92,246,0.1)' }]}>
-            <Music size={18} color={Colors.mind} />
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? 'rgba(139,92,246,0.1)' : 'rgba(150,150,150,0.1)' }]}>
+              {isPremium ? <Music size={18} color={Colors.mind} /> : <Lock size={18} color="#999999" />}
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.quickActionLabel, !isPremium && { color: '#999999' }]}>The Sound Lounge</Text>
+              <Text style={[styles.featureSubtitle, !isPremium && { color: Colors.textMuted }]}>Curated sounds for focus, sleep & calm</Text>
+            </View>
           </View>
-          <Text style={[styles.quickActionLabel, !isPremium && { color: '#999999' }]}>The Sound Lounge</Text>
+          <ChevronRight size={16} color={isPremium ? Colors.textSecondary : Colors.textMuted} />
         </TouchableOpacity>
       </View>
 
       {/* Check 8: Locked section for advanced training */}
-      {!isPremium && (
+      {!isPremium ? (
         <LockedSection
           title="Advanced Mind Training"
           message="Unlock guided programs, sleep protocols & more"
           accentColor={Colors.mind}
         />
+      ) : (
+        <TouchableOpacity
+          style={styles.featureCard}
+          onPress={() => router.push('/mind/advanced-mind-training')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: Colors.mindMuted }]}>
+              <Brain size={20} color={Colors.mind} strokeWidth={1.8} />
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={styles.featureTitle}>Advanced Mind Training</Text>
+              <Text style={styles.featureSubtitle}>Guided programs, sleep protocols & more</Text>
+            </View>
+          </View>
+          <ChevronRight size={16} color={Colors.textSecondary} />
+        </TouchableOpacity>
       )}
 
       <View style={[styles.contentList, { marginTop: 12 }]}>
-        {mindContent.premium.map(item => (
-          <ContentCard key={item.id} item={item} accentColor={Colors.mind} isPremiumSection />
-        ))}
+        <TouchableOpacity
+          style={styles.featureCard}
+          onPress={() => isPremium ? router.push('/mind/better-sleep?tab=sessions' as any) : handleShowPaywall()}
+          activeOpacity={0.7}
+        >
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? Colors.mindMuted : 'rgba(150,150,150,0.1)' }]}>
+              {isPremium
+                ? <Moon size={20} color={Colors.mind} strokeWidth={1.8} />
+                : <Lock size={20} color="#999999" strokeWidth={1.8} />
+              }
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.featureTitle, !isPremium && { color: '#999999' }]}>The Sleep Hub</Text>
+              <Text style={[styles.featureSubtitle, !isPremium && { color: Colors.textMuted }]}>Guided sleep sessions & protocols</Text>
+            </View>
+          </View>
+          <ChevronRight size={16} color={isPremium ? Colors.textSecondary : Colors.textMuted} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.featureCard}
+          onPress={() => isPremium ? showToast('Starting: Anxiety Relief Program') : handleShowPaywall()}
+          activeOpacity={0.7}
+        >
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? Colors.mindMuted : 'rgba(150,150,150,0.1)' }]}>
+              {isPremium
+                ? <Heart size={20} color={Colors.mind} strokeWidth={1.8} />
+                : <Lock size={20} color="#999999" strokeWidth={1.8} />
+              }
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.featureTitle, !isPremium && { color: '#999999' }]}>Anxiety Relief Program</Text>
+              <Text style={[styles.featureSubtitle, !isPremium && { color: Colors.textMuted }]}>7-day guided course</Text>
+            </View>
+          </View>
+          <ChevronRight size={16} color={isPremium ? Colors.textSecondary : Colors.textMuted} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.featureCard}
+          onPress={() => isPremium ? showToast('Starting: Focus Flow State') : handleShowPaywall()}
+          activeOpacity={0.7}
+        >
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: isPremium ? Colors.mindMuted : 'rgba(150,150,150,0.1)' }]}>
+              {isPremium
+                ? <Zap size={20} color={Colors.mind} strokeWidth={1.8} />
+                : <Lock size={20} color="#999999" strokeWidth={1.8} />
+              }
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.featureTitle, !isPremium && { color: '#999999' }]}>Focus Flow State</Text>
+              <Text style={[styles.featureSubtitle, !isPremium && { color: Colors.textMuted }]}>Peak performance mental training</Text>
+            </View>
+          </View>
+          <ChevronRight size={16} color={isPremium ? Colors.textSecondary : Colors.textMuted} />
+        </TouchableOpacity>
       </View>
 
       {/* Check 9: Locked section for emotional wellness */}
-      {!isPremium && (
+      {!isPremium ? (
         <View style={{ marginTop: 12 }}>
           <LockedSection
             title="Emotional Wellness Toolkit"
@@ -378,25 +446,46 @@ export default function MindScreen() {
             accentColor={Colors.mind}
           />
         </View>
+      ) : (
+        <TouchableOpacity
+          style={[styles.featureCard, { marginTop: 12 }]}
+          onPress={() => router.push('/mind/emotional-wellness-toolkit')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.featureCardLeft}>
+            <View style={[styles.techniqueIcon, { backgroundColor: Colors.mindMuted }]}>
+              <Smile size={20} color={Colors.mind} strokeWidth={1.8} />
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={styles.featureTitle}>Emotional Wellness Toolkit</Text>
+              <Text style={styles.featureSubtitle}>CBT exercises, mood tracking & therapist-designed tools</Text>
+            </View>
+          </View>
+          <ChevronRight size={16} color={Colors.textSecondary} />
+        </TouchableOpacity>
       )}
 
       {/* Check 10: Premium community CTA at bottom */}
-      {!isPremium ? (
+      {!isPremium && !user ? (
         <TouchableOpacity
           style={styles.communityCta}
           onPress={handleShowPaywall}
           activeOpacity={0.7}
           testID="mind-community-cta"
         >
-          <LineHeartIcon size={20} color="#FFFFFF" strokeWidth={1.5} />
+          <View style={[styles.techniqueIcon, { backgroundColor: 'rgba(150,150,150,0.1)' }]}>
+            <Lock size={20} color="#999999" strokeWidth={1.8} />
+          </View>
           <View style={styles.communityCtaText}>
-            <Text style={styles.communityCtaTitle}>Join the Premium Community</Text>
-            <Text style={styles.communityCtaSub}>Connect with mindfulness practitioners & coaches</Text>
+            <Text style={[styles.communityCtaTitle, { color: '#999999' }]}>Join the Premium Community</Text>
+            <Text style={[styles.communityCtaSub, { color: Colors.textMuted }]}>Connect with mindfulness practitioners & coaches</Text>
           </View>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.communityCtaUnlocked} activeOpacity={0.7} testID="mind-community-unlocked" onPress={() => router.push('/community')}>
-          <LineHeartIcon size={20} color="#FFFFFF" strokeWidth={1.5} />
+          <View style={[styles.techniqueIcon, { backgroundColor: Colors.mindMuted }]}>
+            <Users size={20} color="#8B5CF6" strokeWidth={1.8} />
+          </View>
           <View style={styles.communityCtaText}>
             <Text style={styles.communityCtaTitle}>Premium Community</Text>
             <Text style={styles.communityCtaSub}>Chat with coaches & fellow practitioners</Text>
@@ -457,7 +546,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'rgba(167,139,250,0.2)',
+    borderColor: 'rgba(139,92,246,0.2)',
     overflow: 'hidden',
   },
   heroTop: {
@@ -522,7 +611,7 @@ const styles = StyleSheet.create({
     padding: 18,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: 'rgba(167,139,250,0.15)',
+    borderColor: 'rgba(139,92,246,0.15)',
   },
   insightsRow: {
     flexDirection: 'row',
@@ -579,7 +668,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(167,139,250,0.18)',
+    borderColor: 'rgba(139,92,246,0.18)',
     overflow: 'hidden',
     marginBottom: 2,
   },
@@ -618,7 +707,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(167,139,250,0.18)',
+    borderColor: 'rgba(139,92,246,0.18)',
     overflow: 'hidden',
     marginBottom: 2,
   },
@@ -629,7 +718,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(167,139,250,0.08)',
+    borderTopColor: 'rgba(139,92,246,0.08)',
   },
   techniqueCard: {
     flexDirection: 'row',
@@ -638,10 +727,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(167,139,250,0.08)',
+    borderTopColor: 'rgba(139,92,246,0.08)',
   },
   techniqueCardPrimary: {
-    backgroundColor: 'rgba(167,139,250,0.04)',
+    backgroundColor: 'rgba(139,92,246,0.04)',
   },
   techniqueCardLocked: {
     opacity: 0.65,
@@ -672,7 +761,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(167,139,250,0.18)',
+    borderColor: 'rgba(139,92,246,0.18)',
   },
   featureCardLeft: {
     flexDirection: 'row',
@@ -691,14 +780,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   featureTitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '700' as const,
     color: Colors.text,
     marginBottom: 3,
     flexShrink: 1,
   },
   featureSubtitle: {
-    fontSize: 11,
+    fontSize: 12,
+    fontWeight: '500' as const,
     color: Colors.textSecondary,
     lineHeight: 15,
   },
@@ -713,21 +803,18 @@ const styles = StyleSheet.create({
     color: Colors.mind,
   },
   quickActionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
     gap: 10,
     marginBottom: 8,
   },
   quickAction: {
-    width: '47%' as unknown as number,
-    flexGrow: 1,
-    backgroundColor: Colors.surface,
-    borderRadius: 14,
-    padding: 14,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 14,
     borderWidth: 1,
-    borderColor: Colors.surfaceHighlight,
+    borderColor: 'rgba(139,92,246,0.18)',
   },
   quickActionIcon: {
     width: 40,
@@ -737,10 +824,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quickActionLabel: {
-    fontSize: 11,
-    fontWeight: '600' as const,
+    fontSize: 14,
+    fontWeight: '700' as const,
     color: '#FFFFFF',
-    textAlign: 'center' as const,
+    textAlign: 'left' as const,
   },
   quickActionsHeading: {
     fontSize: 14,

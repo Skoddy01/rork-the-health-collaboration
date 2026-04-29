@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { router } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User, QuizAnswer, PurchaseState, JournalEntry, AppTheme } from '@/types';
-import { mockJournalEntries } from '@/constants/mock';
-import { trpc, isTrpcAvailable } from '@/lib/trpc';
-
 const STORAGE_KEYS = {
   USER: 'hal_thc_user',
   ONBOARDING_COMPLETE: 'hal_thc_onboarding',
@@ -32,7 +30,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
   const [toastMessage, setToastMessage] = useState<string>('');
   const [toastVisible, setToastVisible] = useState<boolean>(false);
   const [theme, setThemeState] = useState<AppTheme>('dark');
-  const premiumSyncedRef = useRef<boolean>(false);
+  const [showPinSetup, setShowPinSetup] = useState<boolean>(false);
 
   const initQuery = useQuery({
     queryKey: ['app-init'],
@@ -68,7 +66,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
       if (journal) {
         setJournalEntries(JSON.parse(journal));
       } else {
-        setJournalEntries(mockJournalEntries);
+        setJournalEntries([]);
       }
       if (themeData === 'dark' || themeData === 'light' || themeData === 'system') {
         setThemeState(themeData);
@@ -77,53 +75,6 @@ export const [AppProvider, useApp] = createContextHook(() => {
       console.log('[AppProvider] State loaded successfully');
     }
   }, [initQuery.data]);
-
-  const premiumStatusQuery = trpc.premium.getStatus.useQuery(
-    { userId: user?.id ?? '' },
-    {
-      enabled: isTrpcAvailable && !!user?.id && isReady,
-      staleTime: 1000 * 60 * 5,
-      retry: 2,
-    }
-  );
-
-  useEffect(() => {
-    if (premiumStatusQuery.data && !premiumSyncedRef.current) {
-      const serverPremium = premiumStatusQuery.data.isPremium;
-      console.log('[AppProvider] Server premium status:', serverPremium);
-
-      if (serverPremium && !isPremium) {
-        console.log('[AppProvider] Restoring premium from server');
-        setIsPremium(true);
-        AsyncStorage.setItem(STORAGE_KEYS.PREMIUM, 'true');
-        if (user) {
-          const updatedUser = { ...user, isPremium: true };
-          setUser(updatedUser);
-          AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
-        }
-      }
-      premiumSyncedRef.current = true;
-    }
-  }, [premiumStatusQuery.data, isPremium, user]);
-
-  const markPremiumMutation = trpc.premium.markPremium.useMutation({
-    onSuccess: (data) => {
-      console.log('[AppProvider] Premium persisted to server:', data);
-      queryClient.invalidateQueries({ queryKey: [['premium', 'getStatus']] });
-    },
-    onError: (error) => {
-      console.log('[AppProvider] Failed to persist premium to server:', error.message);
-    },
-  });
-
-  const syncUserMutation = trpc.user.sync.useMutation({
-    onSuccess: (data) => {
-      console.log('[AppProvider] User synced to server:', data.user.userId);
-    },
-    onError: (error) => {
-      console.log('[AppProvider] Failed to sync user to server:', error.message);
-    },
-  });
 
   const saveMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
@@ -160,13 +111,10 @@ export const [AppProvider, useApp] = createContextHook(() => {
       createdAt: new Date().toISOString(),
     };
     setUser(newUser);
-    setOnboardingComplete(true);
-    premiumSyncedRef.current = false;
-    saveMutation.mutate({ key: STORAGE_KEYS.USER, value: JSON.stringify(newUser) });
+    setOnboardingComplete(true);    saveMutation.mutate({ key: STORAGE_KEYS.USER, value: JSON.stringify(newUser) });
     saveMutation.mutate({ key: STORAGE_KEYS.ONBOARDING_COMPLETE, value: 'true' });
-    syncUserMutation.mutate({ userId: newUser.id, email: newUser.email, name: newUser.name });
     showToast('Welcome to The Health Collaboration!');
-  }, [saveMutation, showToast, syncUserMutation]);
+  }, [saveMutation, showToast]);
 
   const signUp = useCallback(async (email: string, password: string, name: string) => {
     console.log('[AppProvider] Signing up:', email);
@@ -179,23 +127,21 @@ export const [AppProvider, useApp] = createContextHook(() => {
     };
     setUser(newUser);
     setOnboardingComplete(true);
-    premiumSyncedRef.current = false;
-    saveMutation.mutate({ key: STORAGE_KEYS.USER, value: JSON.stringify(newUser) });
+    setShowPinSetup(true);    saveMutation.mutate({ key: STORAGE_KEYS.USER, value: JSON.stringify(newUser) });
     saveMutation.mutate({ key: STORAGE_KEYS.ONBOARDING_COMPLETE, value: 'true' });
-    syncUserMutation.mutate({ userId: newUser.id, email: newUser.email, name: newUser.name });
     showToast('Account created successfully!');
-  }, [saveMutation, showToast, syncUserMutation]);
+  }, [saveMutation, showToast, setShowPinSetup]);
 
   const signOut = useCallback(async () => {
     console.log('[AppProvider] Signing out');
     setUser(null);
     setOnboardingComplete(false);
     setQuizAnswers([]);
-    setIsPremium(false);
-    premiumSyncedRef.current = false;
-    await AsyncStorage.multiRemove(Object.values(STORAGE_KEYS));
+    setIsPremium(false);    await AsyncStorage.multiRemove(Object.values(STORAGE_KEYS));
     showToast('Signed out');
   }, [showToast]);
+
+  const setPinSetupComplete = useCallback(() => setShowPinSetup(false), []);
 
   const completeOnboarding = useCallback(() => {
     setOnboardingComplete(true);
@@ -206,16 +152,8 @@ export const [AppProvider, useApp] = createContextHook(() => {
   const saveQuizAnswers = useCallback((answers: QuizAnswer[]) => {
     setQuizAnswers(answers);
     saveMutation.mutate({ key: STORAGE_KEYS.QUIZ_ANSWERS, value: JSON.stringify(answers) });
-    if (user) {
-      syncUserMutation.mutate({
-        userId: user.id,
-        email: user.email,
-        name: user.name,
-        quizAnswers: answers,
-      });
-    }
     console.log('[AppProvider] Quiz answers saved:', answers.length);
-  }, [saveMutation, user, syncUserMutation]);
+  }, [saveMutation]);
 
   const purchasePremium = useCallback(async () => {
     console.log('[AppProvider] Starting premium purchase...');
@@ -230,17 +168,19 @@ export const [AppProvider, useApp] = createContextHook(() => {
         const updatedUser = { ...user, isPremium: true };
         setUser(updatedUser);
         saveMutation.mutate({ key: STORAGE_KEYS.USER, value: JSON.stringify(updatedUser) });
-        markPremiumMutation.mutate({ userId: user.id });
       }
 
       showToast('Welcome to The Health Collaboration Premium!');
-      setTimeout(() => setPurchaseState('idle'), 4000);
+      setTimeout(() => {
+        router.replace('/(tabs)/home');
+      }, 5000);
+      setTimeout(() => setPurchaseState('idle'), 6000);
     } catch {
       setPurchaseState('error');
       showToast('Purchase failed. Please try again.');
       setTimeout(() => setPurchaseState('idle'), 3000);
     }
-  }, [user, saveMutation, showToast, markPremiumMutation]);
+  }, [user, saveMutation, showToast]);
 
   const addJournalEntry = useCallback((entry: JournalEntry) => {
     const updated = [entry, ...journalEntries];
@@ -263,12 +203,9 @@ export const [AppProvider, useApp] = createContextHook(() => {
     };
     setUser(updatedUser);
     saveMutation.mutate({ key: STORAGE_KEYS.USER, value: JSON.stringify(updatedUser) });
-    if (isTrpcAvailable) {
-      syncUserMutation.mutate({ userId: updatedUser.id, email: updatedUser.email, name: updatedUser.name });
-    }
     showToast('Profile updated');
     console.log('[AppProvider] Profile updated:', updatedUser.name, updatedUser.email);
-  }, [user, saveMutation, showToast, syncUserMutation]);
+  }, [user, saveMutation, showToast]);
 
   return useMemo(() => ({
     user,
@@ -284,6 +221,8 @@ export const [AppProvider, useApp] = createContextHook(() => {
     setTheme,
     toastMessage,
     toastVisible,
+    showPinSetup,
+    setPinSetupComplete,
     signIn,
     signUp,
     signOut,
@@ -296,7 +235,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
   }), [
     user, isReady, disclaimerAgreed, onboardingComplete, quizAnswers, isPremium,
     purchaseState, journalEntries, theme, effectiveTheme, toastMessage, toastVisible,
-    signIn, signUp, signOut, completeOnboarding, saveQuizAnswers,
+    showPinSetup, setPinSetupComplete, signIn, signUp, signOut, completeOnboarding, saveQuizAnswers,
     purchasePremium, addJournalEntry, updateProfile, setTheme, showToast,
   ]);
 });

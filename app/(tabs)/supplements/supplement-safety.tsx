@@ -94,7 +94,7 @@ export default function SupplementSafetyScreen() {
       </View>
 
       <LinearGradient
-        colors={['#2563EB', '#1D4ED8']}
+        colors={['#38BDF8', '#BAE6FD']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.heroCard}
@@ -299,12 +299,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#38BDF8',
   },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700' as const,
-    color: '#60A5FA',
+    color: '#0284C7',
     letterSpacing: 1.2,
   },
   sectionHeading: {
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   ruleNumberText: {
     fontSize: 14,
     fontWeight: '700' as const,
-    color: '#2563EB',
+    color: '#0284C7',
   },
   ruleContent: {
     flex: 1,
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   },
   limitValue: {
     fontSize: 14,
-    color: '#2563EB',
+    color: '#0284C7',
     fontWeight: '600' as const,
   },
   ctaButton: {

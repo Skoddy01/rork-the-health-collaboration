@@ -62,8 +62,8 @@ const PRESETS: TimerPreset[] = [
     label: 'Flow State',
     focusMinutes: 90,
     breakMinutes: 15,
-    icon: <Clock size={20} color="#34D399" strokeWidth={1.8} />,
-    color: '#34D399',
+    icon: <Clock size={20} color="#22C55E" strokeWidth={1.8} />,
+    color: '#22C55E',
     description: '90 min focus · 15 min break',
   },
 ];
@@ -187,7 +187,7 @@ export default function FocusTimerScreen() {
     outputRange: [CIRCUMFERENCE, 0],
   });
 
-  const activeColor = phase === 'break' ? '#34D399' : selectedPreset.color;
+  const activeColor = phase === 'break' ? '#22C55E' : selectedPreset.color;
 
   if (!isPremium) return null;
 
@@ -227,7 +227,7 @@ export default function FocusTimerScreen() {
 
         {phase === 'break' && (
           <View style={styles.breakBanner}>
-            <Coffee size={16} color="#34D399" />
+            <Coffee size={16} color="#22C55E" />
             <Text style={styles.breakBannerText}>Take a break — you earned it!</Text>
           </View>
         )}
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   breakBannerText: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#34D399',
+    color: '#22C55E',
   },
   controlsRow: {
     flexDirection: 'row',

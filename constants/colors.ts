@@ -39,8 +39,8 @@ export const DarkColors: ThemeColors = {
   textMuted: '#666666',
   textInverse: '#FFFFFF',
   white: '#FFFFFF',
-  primary: '#C8E86E',
-  primaryMuted: 'rgba(200,232,110,0.12)',
+  primary: '#7C3AED',
+  primaryMuted: 'rgba(124,58,237,0.12)',
   premium: '#F5C542',
   premiumMuted: 'rgba(245,197,66,0.12)',
   success: '#4ADE80',
@@ -50,39 +50,39 @@ export const DarkColors: ThemeColors = {
   mindMuted: 'rgba(139,92,246,0.12)',
   exercise: '#F97316',
   exerciseMuted: 'rgba(249,115,22,0.12)',
-  diet: '#22D3EE',
-  dietMuted: 'rgba(34,211,238,0.12)',
-  supplements: '#EC4899',
-  supplementsMuted: 'rgba(236,72,153,0.12)',
+  diet: '#22C55E',
+  dietMuted: 'rgba(34,197,94,0.12)',
+  supplements: '#38BDF8',
+  supplementsMuted: 'rgba(56,189,248,0.12)',
 };
 
 export const LightColors: ThemeColors = {
-  background: '#F5F5F7',
+  background: '#FAFAF9',
   surface: '#FFFFFF',
   surfaceHighlight: '#F0F0F0',
   surfaceLight: '#E5E5E5',
-  border: '#DCDCDC',
+  border: '#D1D5DB',
   overlay: 'rgba(0,0,0,0.35)',
-  text: '#1A1A1A',
-  textSecondary: '#636366',
-  textMuted: '#8E8E93',
+  text: '#111827',
+  textSecondary: '#6B7280',
+  textMuted: '#9CA3AF',
   textInverse: '#FFFFFF',
   white: '#FFFFFF',
-  primary: '#4A7A0B',
-  primaryMuted: 'rgba(74,122,11,0.10)',
+  primary: '#7C3AED',
+  primaryMuted: 'rgba(124,58,237,0.10)',
   premium: '#B8860B',
   premiumMuted: 'rgba(184,134,11,0.10)',
   success: '#16A34A',
   warning: '#D97706',
   error: '#DC2626',
-  mind: '#7C3AED',
-  mindMuted: 'rgba(124,58,237,0.08)',
-  exercise: '#EA580C',
-  exerciseMuted: 'rgba(234,88,12,0.08)',
-  diet: '#0891B2',
-  dietMuted: 'rgba(8,145,178,0.08)',
-  supplements: '#DB2777',
-  supplementsMuted: 'rgba(219,39,119,0.08)',
+  mind: '#8B5CF6',
+  mindMuted: 'rgba(139,92,246,0.08)',
+  exercise: '#F97316',
+  exerciseMuted: 'rgba(249,115,22,0.08)',
+  diet: '#22C55E',
+  dietMuted: 'rgba(34,197,94,0.08)',
+  supplements: '#38BDF8',
+  supplementsMuted: 'rgba(56,189,248,0.08)',
 };
 
 export const Colors = DarkColors;
@@ -107,14 +107,14 @@ export const PillarMutedColors: Record<PillarKey, string> = {
   supplements: Colors.supplementsMuted,
 };
 
-const tintColorLight = "#2f95dc";
+const tintColorLight = "#7C3AED";
 
 export default {
   light: {
-    text: "#000",
-    background: "#fff",
+    text: "#111827",
+    background: "#FAFAF9",
     tint: tintColorLight,
-    tabIconDefault: "#ccc",
+    tabIconDefault: "#9CA3AF",
     tabIconSelected: tintColorLight,
   },
 };

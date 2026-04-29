@@ -110,7 +110,7 @@ export const sessionIntents: SessionIntent[] = [
     emoji: '🧘',
     description: 'Unwind and melt away tension',
     recommendedTerpenes: ['myrcene', 'linalool', 'caryophyllene'],
-    color: '#A78BFA',
+    color: '#8B5CF6',
   },
   {
     id: 'creativity',
@@ -134,7 +134,7 @@ export const sessionIntents: SessionIntent[] = [
     emoji: '🎯',
     description: 'Sharpen concentration and clarity',
     recommendedTerpenes: ['pinene', 'limonene', 'terpinolene'],
-    color: '#34D399',
+    color: '#22C55E',
   },
   {
     id: 'sleep',
@@ -150,7 +150,7 @@ export const sessionIntents: SessionIntent[] = [
     emoji: '✨',
     description: 'Open, warm, and connected',
     recommendedTerpenes: ['limonene', 'caryophyllene', 'ocimene'],
-    color: '#FB923C',
+    color: '#F97316',
   },
 ];
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 import { useColors } from '@/hooks/useColors';
-import UpgradeButton from '@/components/UpgradeButton';
-
 export default function ExerciseLayout() {
   const colors = useColors();
 
@@ -20,7 +18,6 @@ export default function ExerciseLayout() {
         options={{
           title: 'Exercise',
           headerTitleStyle: { fontWeight: '700' as const, fontSize: 18 },
-          headerRight: () => <UpgradeButton />,
         }}
       />
       <Stack.Screen name="pedometer" options={{ title: 'Step Counter', headerTitleStyle: { fontWeight: '700' as const, fontSize: 18 } }} />

@@ -1,4 +1,5 @@
-import { Redirect } from 'expo-router';
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'expo-router';
 import { useApp } from '@/providers/AppProvider';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useColors } from '@/hooks/useColors';
@@ -6,20 +7,24 @@ import { useColors } from '@/hooks/useColors';
 export default function IndexScreen() {
   const { isReady, user, onboardingComplete } = useApp();
   const colors = useColors();
+  const router = useRouter();
+  const hasNavigated = useRef(false);
 
-  if (!isReady) {
-    return (
-      <View style={[styles.loading, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (!isReady || hasNavigated.current) return;
+    hasNavigated.current = true;
+    if (user && onboardingComplete) {
+      router.replace('/(tabs)/home');
+    } else {
+      router.replace('/welcome');
+    }
+  }, [isReady, user, onboardingComplete, router]);
 
-  if (user && onboardingComplete) {
-    return <Redirect href="/(tabs)/home" />;
-  }
-
-  return <Redirect href="/welcome" />;
+  return (
+    <View style={[styles.loading, { backgroundColor: colors.background }]}>
+      <ActivityIndicator size="large" color={colors.primary} />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

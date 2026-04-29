@@ -1,8 +1,6 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 import { useColors } from '@/hooks/useColors';
-import UpgradeButton from '@/components/UpgradeButton';
-
 export default function MindLayout() {
   const colors = useColors();
 
@@ -20,7 +18,6 @@ export default function MindLayout() {
         options={{
           title: 'Mind',
           headerTitleStyle: { fontWeight: '700' as const, fontSize: 18 },
-          headerRight: () => <UpgradeButton />,
         }}
       />
       <Stack.Screen name="breathing" options={{ title: 'Breathing Techniques', headerTitleStyle: { fontWeight: '700' as const, fontSize: 18 } }} />
@@ -30,6 +27,8 @@ export default function MindLayout() {
       <Stack.Screen name="sleep-sounds" options={{ title: 'Sound Sessions', headerTitleStyle: { fontWeight: '700' as const, fontSize: 16 } }} />
       <Stack.Screen name="focus-timer" options={{ title: 'Focus Timer', headerTitleStyle: { fontWeight: '700' as const, fontSize: 18 } }} />
       <Stack.Screen name="better-sleep" options={{ title: 'Sound Sessions', headerTitleStyle: { fontWeight: '700' as const, fontSize: 16 } }} />
+      <Stack.Screen name="advanced-mind-training" options={{ headerShown: false }} />
+      <Stack.Screen name="emotional-wellness-toolkit" options={{ headerShown: false }} />
     </Stack>
   );
 }
